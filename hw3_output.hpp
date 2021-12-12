@@ -4,7 +4,10 @@
 #include <vector>
 #include <string>
 using namespace std;
-
+extern int yylineno;
+extern int yyleng;
+extern int yylex();
+extern char* yytext;
 namespace output{
     void endScope();
     void printID(const string& id, int offset, const string& type);
