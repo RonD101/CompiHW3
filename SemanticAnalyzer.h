@@ -4,11 +4,8 @@
 #ifndef COMPIHW3_SEMANTICANALYZER_H
 #define COMPIHW3_SEMANTICANALYZER_H
 
-#include <memory>
 #include <vector>
 #include <string>
-#include <utility>
-#include <ostream>
 #include "hw3_output.hpp"
 
 using std::vector;
@@ -32,12 +29,7 @@ public:
     }
 };
 
-#define YYSTYPE BaseType&
-
-class Type : public BaseType {
-public:
-    explicit Type(BaseType& type);
-};
+#define YYSTYPE BaseType*
 
 class SymbolEntry {
 public:
@@ -54,6 +46,11 @@ public:
     vector<SymbolEntry> rows;
 };
 
+class Type : public BaseType {
+public:
+    explicit Type(const BaseType& type);
+};
+
 class Program : public BaseType {
 public:
     // FUNCS
@@ -66,18 +63,32 @@ public:
     Funcs();
 };
 
-class FuncDecl : public BaseType {
-public:
-    // Parameter types.
-    vector<string> type;
-    // RetType ID LPAREN Formals RPAREN LBRACE Statements RBRACE
-    FuncDecl(RetType& return_type, BaseType& id, Formals& params);
-};
-
 class RetType : public BaseType {
 public:
     // TYPE
-    explicit RetType(BaseType& type) : BaseType(type) {}
+    explicit RetType(const BaseType& type) : BaseType(type) {}
+};
+
+class FormalDecl : public BaseType {
+public:
+    // The parameter type
+    string type;
+    // Type ID
+    FormalDecl(const Type& t, const BaseType& id) : BaseType(id.actual_type), type(t.actual_type) {}
+};
+
+class FormalsList : public BaseType {
+public:
+    vector<FormalDecl> formal_list;
+    // FormalDecl
+    explicit FormalsList(const FormalDecl& decl) { 
+        formal_list.push_back(decl); // int x ---> formal_list[0] = int x
+    }
+    // FormalDecl COMMA FormalList
+    FormalsList(const FormalDecl& decl, const FormalsList& f_list) {
+        formal_list.push_back(decl); // int x, y; ---> formal_list[0] = int x, formal_list[1] = int y
+        formal_list.insert(std::end(formal_list), std::begin(f_list.formal_list), std::end(f_list.formal_list));
+    }
 };
 
 class Formals : public BaseType {
@@ -89,102 +100,83 @@ public:
     explicit Formals(const FormalsList& f_list) : formals(f_list.formal_list) {}
 };
 
-class FormalsList : public BaseType {
+class FuncDecl : public BaseType {
 public:
-    vector<FormalDecl> formal_list;
-    // FormalDecl
-    explicit FormalsList(FormalDecl& decl) { 
-        formal_list.push_back(decl); // int x ---> formal_list[0] = int x
-    }
-    // FormalDecl COMMA FormalList
-    FormalsList(FormalDecl& decl, const FormalsList& f_list) {
-        formal_list.push_back(decl); // int x, y; ---> formal_list[0] = int x, formal_list[1] = int y
-        formal_list.insert(std::end(formal_list), std::begin(f_list.formal_list), std::end(f_list.formal_list));
-    }
+    // Parameter types.
+    vector<string> type;
+    // RetType ID LPAREN Formals RPAREN LBRACE Statements RBRACE
+    FuncDecl(const RetType& return_type, const BaseType& id, const Formals& params);
 };
 
-class FormalDecl : public BaseType {
-public:
-    // The parameter type
-    string type;
-    // Type ID
-    FormalDecl(Type& type, BaseType& id) : BaseType(id.actual_type), type(type.actual_type) {}
-};
-
-class Statements : public BaseType {
-public:
-    // Statement
-    explicit Statements(Statement& rhs_statement);
-    // Statements Statement
-    Statements(Statements& rhs_statements, Statement& rhs_statement);
-};
-
-class Statement : public BaseType {
-public:
-    string dataTag;
-    // LBRACE Statements RBRACE
-    explicit Statement(Statements& rhs_statements);
-    // Type ID SC
-    Statement(Type& type, BaseType& id);
-    // Type ID Assign Exp SC
-    Statement(Type& type, BaseType& id, Exp& exp);
-    // ID Assign Exp SC
-    Statement(BaseType& id, Exp &exp);
-    // Call SC
-    explicit Statement(Call &call);
-    // Return SC (void)
-    explicit Statement(const string& ret_type);
-    // Return Exp SC (not void)
-    explicit Statement(Exp &exp);
-    // IF etc...
-    Statement(const string& type, Exp& exp);
-    // BREAK, CONTINUE
-    explicit Statement(BaseType &type);
-};
+class Call; 
 
 class Exp : public BaseType {
 public:
     string type;
     // NUM, NUM B, STRING, TRUE, FALSE, ID
-    Exp(BaseType &terminal, const string& rhs);
+    Exp(const BaseType& terminal, const string& rhs);
     // Call
-    explicit Exp(Call &call);
+    explicit Exp(const Call& call);
     // NOT
-    Exp(BaseType &not_node, Exp &exp);
+    Exp(const BaseType& not_node, const Exp& exp);
     // Exp RELOP/BINOP Exp
-    Exp(Exp &first, BaseType &operation, Exp &second, const string &rhs);
+    Exp(const Exp& first, const BaseType& operation, const Exp& second, const string& rhs);
     // LPAREN Exp RPAREN
-    Exp(Exp &ex);
+    Exp(const Exp& ex);
 };
 
 class ExpList : public BaseType {
 public:
     vector<Exp> list;
     // Exp
-    explicit ExpList(Exp &exp);
+    explicit ExpList(const Exp& exp) {
+        list.push_back(exp);
+    }
     // Exp COMMA ExpList
-    ExpList(Exp &exp, ExpList &expList);
+    ExpList(const Exp& exp, const ExpList& expList) {
+        list.push_back(exp);
+        list.insert(std::end(list), std::begin(expList.list), std::end(expList.list));
+    }
 };
 
 class Call : public BaseType {
 public:
     // ID LPAREN ExpList RPAREN
-    Call(BaseType &id, ExpList &list);
+    Call(const BaseType& id, const ExpList& list);
     // ID LPAREN RPAREN
-    explicit Call(BaseType &id);
+    explicit Call(const BaseType& id);
 };
 
+class Statement; 
 
+class Statements : public BaseType {
+public:
+    // Statement
+    explicit Statements(const Statement& rhs_statement);
+    // Statements Statement
+    Statements(const Statements& rhs_statements, const Statement& rhs_statement);
+};
 
-
-
-
-
-
-
-
-
-
-
+class Statement : public BaseType {
+public:
+    // LBRACE Statements RBRACE
+    explicit Statement(const Statements& rhs_statements);
+    // Type ID SC
+    Statement(const Type& type, const BaseType& id);
+    // Type ID Assign Exp SC
+    Statement(const Type& type, const BaseType& id, const Exp& exp);
+    // ID Assign Exp SC
+    Statement(const BaseType& id, const Exp& exp);
+    // Call SC
+    explicit Statement(const Call& call);
+    // Return SC (void)
+    explicit Statement();
+    // Return Exp SC (not void)
+    explicit Statement(const Exp& exp);
+    // IF etc...
+    Statement(const string& type, const Exp& exp);
+    // BREAK, CONTINUE
+    explicit Statement(const BaseType& type);
+};
 
 #endif //COMPIHW3_SEMANTICANALYZER_H
