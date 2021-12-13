@@ -1,0 +1,12 @@
+[
+{
+  "directory": "C:/Users/user/Desktop/CompiHW3/build",
+  "command": "C:\\mingw-w64\\mingw32\\bin\\i686-w64-mingw32-g++.exe   -g -std=gnu++11 -o CMakeFiles\\hw3.dir\\hw3_output.cpp.obj -c C:\\Users\\user\\Desktop\\CompiHW3\\hw3_output.cpp",
+  "file": "C:/Users/user/Desktop/CompiHW3/hw3_output.cpp"
+},
+{
+  "directory": "C:/Users/user/Desktop/CompiHW3/build",
+  "command": "C:\\mingw-w64\\mingw32\\bin\\i686-w64-mingw32-g++.exe   -g -std=gnu++11 -o CMakeFiles\\hw3.dir\\SemanticAnalyzer.cpp.obj -c C:\\Users\\user\\Desktop\\CompiHW3\\SemanticAnalyzer.cpp",
+  "file": "C:/Users/user/Desktop/CompiHW3/SemanticAnalyzer.cpp"
+}
+]
