@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PublishConfigData" autoUpload="Always" serverName="Remote GDB Server (e7155859-9641-4f5d-8ebd-8939c53830e4)" autoUploadExternalChanges="true">
+    <serverData>
+      <paths name="Remote GDB Server (e7155859-9641-4f5d-8ebd-8939c53830e4)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="hw3_compi" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="Remote Host (eb2f7eae-17bc-4643-95d9-e5d8f76ed9b7)">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+    </serverData>
+    <option name="myAutoUpload" value="ALWAYS" />
+  </component>
+</project>
