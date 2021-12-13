@@ -22,9 +22,9 @@ void loop_exited() {
 }
 
 /* ************************************************ */
-static bool is_sym_dec(const string &sym, bool is_search_for_func) {
+static bool is_sym_dec(const string& sym, bool is_search_for_func) {
     for (auto& cur_tab = tables_stack.rbegin(); cur_tab != tables_stack.rend(); ++cur_tab) {
-        for (const auto &row : cur_tab->rows) {
+        for (const auto& row : cur_tab->rows) {
             if (row.name == sym && row.is_func == is_search_for_func)
                 return true;
         }
@@ -52,7 +52,7 @@ Funcs::Funcs() {
 }
 
 /* ************************************************ */
-FuncDecl::FuncDecl(RetType& return_type, BaseType& id, Formals& params) {
+FuncDecl::FuncDecl(const RetType& return_type, const BaseType& id, const Formals& params) {
 
     // Redecleration of function.
     if (is_sym_dec(id.actual_type, true)) {
@@ -77,7 +77,7 @@ FuncDecl::FuncDecl(RetType& return_type, BaseType& id, Formals& params) {
         
     }
     type.push_back(return_type.actual_type); // return type first.
-    for (const auto &param : params.formals) 
+    for (const auto& param : params.formals) 
         type.push_back(param.type);
 
     SymbolEntry new_func(id.actual_type, type, 0, true);
@@ -86,7 +86,7 @@ FuncDecl::FuncDecl(RetType& return_type, BaseType& id, Formals& params) {
 }
 
 /* ************************************************ */
-Statement::Statement(BaseType &type) {
+Statement::Statement(const BaseType& type) {
     if (num_of_loops == 0) {
         if (type.actual_type == "continue") {
             errorUnexpectedContinue(yylineno);
@@ -99,7 +99,7 @@ Statement::Statement(BaseType &type) {
 }
 
 /* ************************************************ */
-Statement::Statement(const string& type, Exp& exp) {
+Statement::Statement(const string& type, const Exp& exp) {
     // Result of if must be bool.
     if (exp.type != "BOOL") {
         errorMismatch(yylineno);
@@ -123,7 +123,7 @@ Statement::Statement(const string& ret_type) {
 }
 
 /* ************************************************ */
-Statement::Statement(Exp &exp) {
+Statement::Statement(const Exp& exp) {
     if (exp.type == "VOID") {
         // Return something from void func.
         errorMismatch(yylineno);
@@ -131,7 +131,7 @@ Statement::Statement(Exp &exp) {
     }
 
     for (auto& cur_tab = tables_stack.rbegin(); cur_tab != tables_stack.rend(); ++cur_tab) {
-        for (const auto &row : cur_tab->rows) {
+        for (const auto& row : cur_tab->rows) {
             if (!row.is_func || row.name != current_function_name) 
                 continue;
             if (row.type[0] != exp.type) {
@@ -147,7 +147,7 @@ Statement::Statement(Exp &exp) {
 }
 
 /* ************************************************ */
-Statement::Statement(BaseType &id, Exp &exp) {
+Statement::Statement(const BaseType& id, const Exp& exp) {
     // Assignment to undeclared var.
     if (!is_sym_dec(id.actual_type, false)) {
         errorUndef(yylineno, id.actual_type);
@@ -155,7 +155,7 @@ Statement::Statement(BaseType &id, Exp &exp) {
     }
 
     for (auto& cur_tab = tables_stack.rbegin(); cur_tab != tables_stack.rend(); ++cur_tab) {
-        for (const auto &row : cur_tab->rows) {
+        for (const auto& row : cur_tab->rows) {
             if (!row.is_func && row.name == id.actual_type) {
                 // We found the desired variable
                 if (row.type[0] == exp.type)
@@ -170,7 +170,7 @@ Statement::Statement(BaseType &id, Exp &exp) {
 }
 
 /* ************************************************ */
-Statement::Statement(Type &type, BaseType &id, Exp &exp) {
+Statement::Statement(const Type& type, const BaseType& id, const Exp& exp) {
     // Symbol redefinition.
     if (is_sym_dec(id.actual_type, false)) {
         errorDef(yylineno, id.actual_type);
@@ -189,7 +189,7 @@ Statement::Statement(Type &type, BaseType &id, Exp &exp) {
 }
 
 /* ************************************************ */
-Statement::Statement(Type &type, BaseType &id) {
+Statement::Statement(const Type& type, const BaseType& id) {
     // Symbol redefinition.
     if (is_sym_dec(id.actual_type, false)) {
         errorDef(yylineno, id.actual_type);

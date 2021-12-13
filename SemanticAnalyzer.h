@@ -4,11 +4,8 @@
 #ifndef COMPIHW3_SEMANTICANALYZER_H
 #define COMPIHW3_SEMANTICANALYZER_H
 
-#include <memory>
 #include <vector>
 #include <string>
-#include <utility>
-#include <ostream>
 #include "hw3_output.hpp"
 
 using std::vector;
@@ -32,12 +29,7 @@ public:
     }
 };
 
-#define YYSTYPE BaseType&
-
-class Type : public BaseType {
-public:
-    explicit Type(BaseType& type);
-};
+#define YYSTYPE BaseType*
 
 class SymbolEntry {
 public:
@@ -71,13 +63,13 @@ public:
     // Parameter types.
     vector<string> type;
     // RetType ID LPAREN Formals RPAREN LBRACE Statements RBRACE
-    FuncDecl(RetType& return_type, BaseType& id, Formals& params);
+    FuncDecl(const RetType& return_type, const BaseType& id, const Formals& params);
 };
 
 class RetType : public BaseType {
 public:
     // TYPE
-    explicit RetType(BaseType& type) : BaseType(type) {}
+    explicit RetType(const BaseType& type) : BaseType(type) {}
 };
 
 class Formals : public BaseType {
@@ -93,11 +85,11 @@ class FormalsList : public BaseType {
 public:
     vector<FormalDecl> formal_list;
     // FormalDecl
-    explicit FormalsList(FormalDecl& decl) { 
+    explicit FormalsList(const FormalDecl& decl) { 
         formal_list.push_back(decl); // int x ---> formal_list[0] = int x
     }
     // FormalDecl COMMA FormalList
-    FormalsList(FormalDecl& decl, const FormalsList& f_list) {
+    FormalsList(const FormalDecl& decl, const FormalsList& f_list) {
         formal_list.push_back(decl); // int x, y; ---> formal_list[0] = int x, formal_list[1] = int y
         formal_list.insert(std::end(formal_list), std::begin(f_list.formal_list), std::end(f_list.formal_list));
     }
@@ -108,83 +100,75 @@ public:
     // The parameter type
     string type;
     // Type ID
-    FormalDecl(Type& type, BaseType& id) : BaseType(id.actual_type), type(type.actual_type) {}
+    FormalDecl(const Type& type, const BaseType& id) : BaseType(id.actual_type), type(type.actual_type) {}
 };
 
 class Statements : public BaseType {
 public:
     // Statement
-    explicit Statements(Statement& rhs_statement);
+    explicit Statements(const Statement& rhs_statement);
     // Statements Statement
-    Statements(Statements& rhs_statements, Statement& rhs_statement);
+    Statements(const Statements& rhs_statements, const Statement& rhs_statement);
 };
 
 class Statement : public BaseType {
 public:
     string dataTag;
     // LBRACE Statements RBRACE
-    explicit Statement(Statements& rhs_statements);
+    explicit Statement(const Statements& rhs_statements);
     // Type ID SC
-    Statement(Type& type, BaseType& id);
+    Statement(const Type& type, const BaseType& id);
     // Type ID Assign Exp SC
-    Statement(Type& type, BaseType& id, Exp& exp);
+    Statement(const Type& type, const BaseType& id, const Exp& exp);
     // ID Assign Exp SC
-    Statement(BaseType& id, Exp &exp);
+    Statement(const BaseType& id, const Exp&exp);
     // Call SC
-    explicit Statement(Call &call);
+    explicit Statement(const Call&call);
     // Return SC (void)
     explicit Statement(const string& ret_type);
     // Return Exp SC (not void)
-    explicit Statement(Exp &exp);
+    explicit Statement(const Exp&exp);
     // IF etc...
-    Statement(const string& type, Exp& exp);
+    Statement(const string& type, const Exp& exp);
     // BREAK, CONTINUE
-    explicit Statement(BaseType &type);
+    explicit Statement(const BaseType &type);
 };
 
-class Exp : public BaseType {
+class Call : public BaseType {
 public:
-    string type;
-    // NUM, NUM B, STRING, TRUE, FALSE, ID
-    Exp(BaseType &terminal, const string& rhs);
-    // Call
-    explicit Exp(Call &call);
-    // NOT
-    Exp(BaseType &not_node, Exp &exp);
-    // Exp RELOP/BINOP Exp
-    Exp(Exp &first, BaseType &operation, Exp &second, const string &rhs);
-    // LPAREN Exp RPAREN
-    Exp(Exp &ex);
+    // ID LPAREN ExpList RPAREN
+    Call(const BaseType &id, const ExpList &list);
+    // ID LPAREN RPAREN
+    explicit Call(const BaseType &id);
 };
 
 class ExpList : public BaseType {
 public:
     vector<Exp> list;
     // Exp
-    explicit ExpList(Exp &exp);
+    explicit ExpList(const Exp &exp);
     // Exp COMMA ExpList
-    ExpList(Exp &exp, ExpList &expList);
+    ExpList(const Exp &exp, const ExpList &expList);
 };
 
-class Call : public BaseType {
+class Type : public BaseType {
 public:
-    // ID LPAREN ExpList RPAREN
-    Call(BaseType &id, ExpList &list);
-    // ID LPAREN RPAREN
-    explicit Call(BaseType &id);
+    explicit Type(const BaseType& type);
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
+class Exp : public BaseType {
+public:
+    string type;
+    // NUM, NUM B, STRING, TRUE, FALSE, ID
+    Exp(const BaseType &terminal, const string& rhs);
+    // Call
+    explicit Exp(const Call &call);
+    // NOT
+    Exp(const BaseType &not_node, const Exp &exp);
+    // Exp RELOP/BINOP Exp
+    Exp(const Exp &first, const BaseType &operation, const Exp &second, const string &rhs);
+    // LPAREN Exp RPAREN
+    Exp(const Exp &ex);
+};
 
 #endif //COMPIHW3_SEMANTICANALYZER_H
