@@ -49,11 +49,13 @@ public:
 class SymbolEntry {
 public:
     string name;
-    vector<string> type;
+    vector<string> types;
+    vector<bool> cost_indicator;
     int offset;
     bool is_func;
-    SymbolEntry(const string& name, const vector<string>& type, int offset, bool is_func) :
-        name(name), type(type), offset(offset), is_func(is_func) {}
+    bool is_const;
+    SymbolEntry(const string& name, const vector<string>& types, int offset, bool is_func, bool is_const, const vector<bool>& const_indicator = {}) :
+        name(name), types(types), cost_indicator(cost_indicator), offset(offset), is_func(is_func), is_const(is_const) {}
 };
 
 class SymbolTable {
@@ -86,10 +88,11 @@ public:
 
 class FormalDecl : public BaseType {
 public:
-    // The parameter type
-    string type;
+    string param_type;
+    bool is_param_const;
     // Type ID
-    FormalDecl(const Type& t, const BaseType& id) : BaseType(id.token_value), type(t.token_value) {}
+    FormalDecl(const Type& t, const BaseType& id, const TypeAnnotation& const_anno) : 
+        BaseType(id.token_value), param_type(t.token_value), is_param_const(const_anno.is_const) {}
 };
 
 class FormalsList : public BaseType {
@@ -117,8 +120,8 @@ public:
 
 class FuncDecl : public BaseType {
 public:
-    // Parameter types.
-    vector<string> type;
+    vector<string> param_types;
+    vector<bool> const_indicator;
     // RetType ID LPAREN Formals RPAREN LBRACE Statements RBRACE
     FuncDecl(const RetType& return_type, const BaseType& func_name, const Formals& params);
 };
@@ -175,14 +178,25 @@ public:
     Statements(const Statements& rhs_statements, const Statement& rhs_statement);
 };
 
+class TypeAnnotation : BaseType {
+public:
+    bool is_const = false;
+    // EPSILON
+    TypeAnnotation() = default;
+    // CONST
+    TypeAnnotation(const string& rhs) : BaseType(rhs) {
+        is_const = true;
+    }
+};
+
 class Statement : public BaseType {
 public:
     // LBRACE Statements RBRACE
     explicit Statement(const Statements& rhs_statements);
-    // Type ID SC
-    Statement(const Type& type, const BaseType& id);
-    // Type ID Assign Exp SC
-    Statement(const Type& type, const BaseType& id, const Exp& exp);
+    // TypeAnnotation Type ID SC
+    Statement(const Type& type, const BaseType& id, const TypeAnnotation& const_anno);
+    // TypeAnnotation Type ID Assign Exp SC
+    Statement(const Type& type, const BaseType& id, const Exp& exp, const TypeAnnotation& const_anno);
     // ID Assign Exp SC
     Statement(const BaseType& id, const Exp& exp);
     // Call SC

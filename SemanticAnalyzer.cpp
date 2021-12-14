@@ -35,11 +35,11 @@ void destroy_current_scope() {
     SymbolTable& closed_scope = tables_stack.back();
     for (auto& row : closed_scope.rows) {
         if (!row.is_func) 
-            printID(row.name, row.offset, row.type[0]);
+            printID(row.name, row.offset, row.types[0]);
         else {
-            const string& return_type = row.type[0];
-            row.type.erase(row.type.begin());
-            printID(row.name, row.offset, makeFunctionType(return_type, row.type));
+            const string& return_type = row.types[0];
+            row.types.erase(row.types.begin());
+            printID(row.name, row.offset, makeFunctionType(return_type, row.types));
         }
     }
     tables_stack.pop_back();
@@ -52,7 +52,7 @@ void check_for_main_correctness() {
     int num_of_main = 0;
     for (const auto& row : global_scope.rows) {
         if (row.is_func && row.name == "main") {
-            if (row.type[0] == "VOID" && row.type.size() == 1)
+            if (row.types[0] == "VOID" && row.types.size() == 1)
                 num_of_main++;
             else {
                 // Found a function called main with non void return type or params.
@@ -79,18 +79,18 @@ static bool is_sym_dec(const string& sym, bool is_search_for_func) {
     return false;
 }
 
-/* ************************************************ */
+/* Program : Funcs */
 Program::Program() : BaseType("Program") {
     SymbolTable new_table;
-    SymbolEntry print_func("print", {"VOID", "STRING"}, 0, true);
-    SymbolEntry printi_func("printi", {"VOID", "INT"}, 0, true);
+    SymbolEntry print_func("print", {"VOID", "STRING"}, 0, true, false, { false });
+    SymbolEntry printi_func("printi", {"VOID", "INT"}, 0, true, false, { false });
     new_table.rows.push_back(print_func);
     new_table.rows.push_back(printi_func);
     tables_stack.push_back(new_table);
     offset_stack.push_back(0);
 }
 
-/* ************************************************ */
+/* Funcs : Epsilon */
 Funcs::Funcs() {
     if (strlen(yytext) == 0) {
         errorSyn(yylineno);
@@ -98,7 +98,7 @@ Funcs::Funcs() {
     }
 }
 
-/* ************************************************ */
+/* FuncDecl : RetType ID LPAREN Formals RPAREN LBRACE Statements RBRACE */
 FuncDecl::FuncDecl(const RetType& return_type, const BaseType& func_name, const Formals& params) {
     // Redecleration of function.
     if (is_sym_dec(func_name.token_value, true)) {
@@ -116,16 +116,20 @@ FuncDecl::FuncDecl(const RetType& return_type, const BaseType& func_name, const 
             }
         }
     }
-    type.push_back(return_type.token_value); // return type first.
-    for (const auto& param : params.formals) 
-        type.push_back(param.type);
+    param_types.push_back(return_type.token_value); // return type first.
+    const_indicator.push_back(false); // Dummy const for return type.
+    for (const auto& param : params.formals) {
+        param_types.push_back(param.param_type);
+        const_indicator.push_back(param.is_param_const);
+    }
 
-    SymbolEntry new_func(func_name.token_value, type, 0, true);
+    SymbolEntry new_func(func_name.token_value, param_types, 0, true, false, const_indicator);
     tables_stack.back().rows.push_back(new_func);
     current_function_name = func_name.token_value;
 }
 
-/* ************************************************ */
+/* Statement : BREAK SC */
+/* Statement : CONTINUE SC */
 Statement::Statement(const BaseType& type) {
     if (num_of_loops > 0)
         return;
@@ -138,7 +142,8 @@ Statement::Statement(const BaseType& type) {
     }
 }
 
-/* ************************************************ */
+/* Statement : IF LPAREN Exp RPAREN Statement */
+/* Statement : IF LPAREN Exp RPAREN Statement ELSE Statement */
 Statement::Statement(const string& type, const Exp& exp) {
     // Result of if must be bool.
     if (exp.type != "BOOL") {
@@ -147,13 +152,13 @@ Statement::Statement(const string& type, const Exp& exp) {
     }
 }
 
-/* ************************************************ */
+/* Statement : RETURN SC */
 Statement::Statement() {
     // Check if current function is void.
     for (auto cur_tab = tables_stack.rbegin(); cur_tab != tables_stack.rend(); ++cur_tab) {
         for (const auto& row : cur_tab->rows) {
             if (row.is_func && row.name == current_function_name) {
-                if (row.type[0] != "VOID") {
+                if (row.types[0] != "VOID") {
                     errorMismatch(yylineno);
                     exit(0);
                 }
@@ -163,19 +168,19 @@ Statement::Statement() {
     }
 }
 
-/* ************************************************ */
+/* Statement : RETURN Exp SC */
 Statement::Statement(const Exp& exp) {
     for (auto cur_tab = tables_stack.rbegin(); cur_tab != tables_stack.rend(); ++cur_tab) {
         for (const auto& row : cur_tab->rows) {
             if (!row.is_func || row.name != current_function_name) 
                 continue;
-            if (row.type[0] == "VOID") {
+            if (row.types[0] == "VOID") {
                 // Return something from void func.
                 errorMismatch(yylineno);
                 exit(0);
             }
-            if (row.type[0] != exp.type) {
-                if (row.type[0] == "INT" && exp.type == "BYTE" || row.type[0] == "BYTE" && exp.type == "INT") 
+            if (row.types[0] != exp.type) {
+                if (row.types[0] == "INT" && exp.type == "BYTE" || row.types[0] == "BYTE" && exp.type == "INT") 
                     return;
                 else {
                     // Return int from bool func.
@@ -188,7 +193,7 @@ Statement::Statement(const Exp& exp) {
     }
 }
 
-/* ************************************************ */
+/* Statement : ID ASSIGN Exp SC */
 Statement::Statement(const BaseType& id, const Exp& exp) {
     // Assignment to undeclared var.
     if (!is_sym_dec(id.token_value, false)) {
@@ -200,9 +205,13 @@ Statement::Statement(const BaseType& id, const Exp& exp) {
         for (const auto& row : cur_tab->rows) {
             if (!row.is_func && row.name == id.token_value) {
                 // We found the desired variable
-                if (row.type[0] == exp.type)
+                if (row.is_const) {
+                    errorConstMismatch(yylineno);
+                    exit(0);
+                }
+                if (row.types[0] == exp.type)
                     return;
-                if (row.type[0] == "INT" && exp.type == "BYTE")
+                if (row.types[0] == "INT" && exp.type == "BYTE")
                     return;
                 errorMismatch(yylineno);
                 exit(0);
@@ -211,8 +220,8 @@ Statement::Statement(const BaseType& id, const Exp& exp) {
     }
 }
 
-/* ************************************************ */
-Statement::Statement(const Type& type, const BaseType& id, const Exp& exp) {
+/* Statement : TypeAnnotation Type ID ASSIGN Exp SC */
+Statement::Statement(const Type& type, const BaseType& id, const Exp& exp, const TypeAnnotation& const_anno) {
     // Symbol redefinition.
     if (is_sym_dec(id.token_value, false)) {
         errorDef(yylineno, id.token_value);
@@ -222,7 +231,7 @@ Statement::Statement(const Type& type, const BaseType& id, const Exp& exp) {
     if (type.token_value == exp.type || (type.token_value == "INT" && exp.type == "BYTE")) {
         int new_offset = offset_stack.back() + 1;
         vector<string> varType = { type.token_value };
-        SymbolEntry new_sym(id.token_value, varType, new_offset, false);
+        SymbolEntry new_sym(id.token_value, varType, new_offset, false, const_anno.is_const);
         tables_stack.back().rows.push_back(new_sym);
     } else {
         errorMismatch(yylineno);
@@ -230,21 +239,24 @@ Statement::Statement(const Type& type, const BaseType& id, const Exp& exp) {
     }
 }
 
-/* ************************************************ */
-Statement::Statement(const Type& type, const BaseType& id) {
+/* Statement : TypeAnnotation Type ID SC */
+Statement::Statement(const Type& type, const BaseType& id, const TypeAnnotation& const_anno) {
     // Symbol redefinition.
     if (is_sym_dec(id.token_value, false)) {
         errorDef(yylineno, id.token_value);
         exit(0);
     }
-
+    if (const_anno.is_const) {
+        errorConstDef(yylineno);
+        exit(0);
+    }
     int new_offset = offset_stack.back() + 1;
     vector<string> varType = { type.token_value };
-    SymbolEntry new_sym(id.token_value, varType, new_offset, false);
+    SymbolEntry new_sym(id.token_value, varType, new_offset, false, false);
     tables_stack.back().rows.push_back(new_sym);
 }
 
-// TODO - check for definitions of parameters.
+/* Call : ID LPAREN ExpList RPAREN */
 Call::Call(const BaseType& id, const ExpList& param_list) {
     for (auto& table : tables_stack) {
         for (auto& row : table.rows) {
@@ -256,18 +268,18 @@ Call::Call(const BaseType& id, const ExpList& param_list) {
                 exit(0);
             }
             // Incorrect number of parameters.
-            if (row.type.size() != param_list.list.size() + 1) {
-                row.type.erase(row.type.begin()); // Remove return type.
-                errorPrototypeMismatch(yylineno, id.token_value, row.type);
+            if (row.types.size() != param_list.list.size() + 1) {
+                row.types.erase(row.types.begin()); // Remove return type.
+                errorPrototypeMismatch(yylineno, id.token_value, row.types);
                 exit(0);
             }
             for (int i = 0; i < param_list.list.size(); i++) {
-                if (param_list.list[i].type == row.type[i + 1])
+                if (param_list.list[i].type == row.types[i + 1])
                     continue;
-                if (param_list.list[i].type == "BYTE" && row.type[i] == "INT")
+                if (param_list.list[i].type == "BYTE" && row.types[i] == "INT")
                     continue;
-                row.type.erase(row.type.begin());
-                errorPrototypeMismatch(yylineno, id.token_value, row.type);
+                row.types.erase(row.types.begin());
+                errorPrototypeMismatch(yylineno, id.token_value, row.types);
                 exit(0);
             }
             return; // Everything is fine.
@@ -277,7 +289,7 @@ Call::Call(const BaseType& id, const ExpList& param_list) {
     exit(0);
 }
 
-/* ************************************************ */
+/* Call : ID LPAREN RPAREN */
 Call::Call(const BaseType& id) {
     for (auto& table : tables_stack) {
         for (auto& row : table.rows) {
@@ -289,9 +301,9 @@ Call::Call(const BaseType& id) {
                 exit(0);
             }
             // Incorrect number of parameters.
-            if (row.type.size() != 1) {
-                row.type.erase(row.type.begin()); // Remove return type.
-                errorPrototypeMismatch(yylineno, id.token_value, row.type);
+            if (row.types.size() != 1) {
+                row.types.erase(row.types.begin()); // Remove return type.
+                errorPrototypeMismatch(yylineno, id.token_value, row.types);
                 exit(0);
             }
             return; // Everything is fine.
@@ -301,13 +313,13 @@ Call::Call(const BaseType& id) {
     exit(0);
 }
 
-/* ************************************************ */
+/* Exp : Call */
 Exp::Exp(const Call& call) {
     token_value = call.token_value;
     type = call.token_value;
 }
 
-/* ************************************************ */
+/* Exp : ID */
 Exp::Exp(const BaseType& term) {
     if (!is_sym_dec(term.token_value, false)) {
         errorUndef(yylineno, term.token_value);
@@ -318,14 +330,14 @@ Exp::Exp(const BaseType& term) {
         for (const auto& row : table.rows) {
             if (row.name == term.token_value) {
                 token_value = term.token_value;
-                type = row.type[0];
+                type = row.types[0];
                 return;
             }
         }
     }
 }
 
-/* ************************************************ */
+/* Exp : NOT Exp */
 Exp::Exp(const BaseType& not_mark, const Exp& exp) {
     // Not performed on something wich is not boolean.
     if (exp.type != "BOOL") {
@@ -336,7 +348,7 @@ Exp::Exp(const BaseType& not_mark, const Exp& exp) {
     type = "BOOL";
 }
 
-/* ************************************************ */
+/*  Exp : NUM, NUM B, STRING, TRUE, FALSE */
 Exp::Exp(const BaseType& term, const string& rhs) : BaseType(term.token_value) {
     if (rhs == "BYTE") {
         if (stoi(term.token_value) > 255) {
@@ -353,14 +365,14 @@ Exp::Exp(const BaseType& term, const string& rhs) : BaseType(term.token_value) {
     type = rhs;
 }
 
-/* ************************************************ */
+/* Exp : LPAREN Exp RPAREN */
 Exp::Exp(const Exp& exp) {
     token_value = exp.token_value;
     type = exp.type;
     res_type = exp.res_type;
 }
 
-/* ************************************************ */
+/* Exp : Exp RELOP/BINOP Exp */
 Exp::Exp(const Exp& first, const BaseType& operation, const Exp& second, const OP_TYPE& rhs) {
     // Int\Bool vs Int\Bool
     if ((first.type == "INT" || first.type == "BYTE") && (second.type == "INT" || second.type == "BYTE")) {
