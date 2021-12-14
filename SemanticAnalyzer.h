@@ -70,7 +70,7 @@ public:
 
 class Type : public BaseType {
 public:
-    explicit Type(const BaseType& type);
+    explicit Type(const BaseType& type) : BaseType(type) {}
 };
 
 class Program : public BaseType {
@@ -89,6 +89,17 @@ class RetType : public BaseType {
 public:
     // TYPE
     explicit RetType(const BaseType& type) : BaseType(type) {}
+};
+
+class TypeAnnotation : BaseType {
+public:
+    bool is_const = false;
+    // EPSILON
+    TypeAnnotation() = default;
+    // CONST
+    TypeAnnotation(const string& rhs) : BaseType(rhs) {
+        is_const = true;
+    }
 };
 
 class FormalDecl : public BaseType {
@@ -149,6 +160,8 @@ public:
     Exp(const Exp& first, const OP_TYPE& op, const Exp& second);
     // LPAREN Exp RPAREN
     Exp(const Exp& exp);
+    // LPAREN Type RPAREN Exp
+    Exp(const Type& type, const Exp& exp);
 };
 
 class ExpList : public BaseType {
@@ -181,17 +194,6 @@ public:
     explicit Statements(const Statement& rhs_statement);
     // Statements Statement
     Statements(const Statements& rhs_statements, const Statement& rhs_statement);
-};
-
-class TypeAnnotation : BaseType {
-public:
-    bool is_const = false;
-    // EPSILON
-    TypeAnnotation() = default;
-    // CONST
-    TypeAnnotation(const string& rhs) : BaseType(rhs) {
-        is_const = true;
-    }
 };
 
 class Statement : public BaseType {

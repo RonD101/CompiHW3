@@ -1,5 +1,6 @@
 %{
     #include "SemanticAnalyzer.h"
+    #include "hw3_output.hpp"
     #include <iostream>
     using namespace output;
     void yyerror(char const*);
@@ -39,40 +40,47 @@
 
 %%
 
-Program : Funcs                                                      { $$ = Program(); };
-Funcs :                                                              { Funcs funcs; };
-Funcs : FuncDecl Funcs                                               {};
-FuncDecl : RetType ID LPAREN Formals RPAREN LBRACE Statements RBRACE { FuncDecl decl($1.)};
-RetType : Type                                                       {};
-RetType : VOID                                                       {};
-Formals :                                                            {};
-Formals : FormalsList                                                {};
-FormalsList : FormalDecl                                             {};
-FormalsList : FormalDecl COMMA FormalsList                           { };
-FormalDecl : TypeAnnotation Type ID                                  { };
-Statements : Statement                                               { };
-Statements : Statements Statement                                    { };
-Statement : LBRACE Statements RBRACE                                 { };
-Statement : TypeAnnotation Type ID SC                                { };
-Statement : TypeAnnotation Type ID ASSIGN Exp SC                     { };
+Program : Funcs                                                      { $$ = Program(); check_for_main_correctness(); };
+Funcs :                                                              { $$ = Funcs(); };
+Funcs : FuncDecl Funcs                                               { $$ = Funcs(); };
+FuncDecl : RetType ID M_NEW_SCOPE LPAREN Formals RPAREN LBRACE Statements RBRACE
+{ 
+    $$ = FuncDecl(RetType($1), $2, Formals($5));
+    destroy_current_scope();
+};
+RetType : Type                                                       { $$ = RetType(Type($1)); };
+RetType : VOID                                                       { $$ = RetType($1); };
+Formals :                                                            { $$ = Formals(); };
+Formals : FormalsList                                                { $$ = Formals(FormalsList($1)); };
+FormalsList : FormalDecl                                             { $$ = FormalsList(FormalDecl($1)); };
+FormalsList : FormalDecl COMMA FormalsList                           { $$ = FormalsList(FormalDecl($1), FormalsList($3)); };
+FormalDecl : TypeAnnotation Type ID                                  { $$ = FormalDecl(Type($2), $3, TypeAnnotation($1)); };
+Statements : Statement                                               { $$ = Statements(Statement($1)); };
+Statements : Statements Statement                                    { $$ = Statements(Statements($1), Statement($2)); };
+Statement : LBRACE M_NEW_SCOPE Statements RBRACE                     { $$ = Statement(Statements($3); destroy_current_scope(); };
+Statement : TypeAnnotation Type ID SC                                { $$ = Statement(Type($2), $3, TypeAnnotation($1)); };
+Statement : TypeAnnotation Type ID ASSIGN Exp SC                     { $$ = Statement(Type($2), $3, Exp($5), TypeAnnotation($1)); };
 Statement : ID ASSIGN Exp SC                                         { $$ = Statement($1, Exp($3)); };
 Statement : Call SC                                                  { $$ = Statement(Call($1)); };
 Statement : RETURN SC                                                { $$ = Statement(); };
 Statement : RETURN Exp SC                                            { $$ = Statement(Exp($2)); };
-Statement : IF LPAREN Exp RPAREN Statement                           { $$ = Statement("", Exp($3)); };
-Statement : IF LPAREN Exp RPAREN Statement ELSE Statement            { $$ = Statement("", Exp($3)); };
-Statement : WHILE LPAREN Exp RPAREN Statement                        { $$ = Statement("", Exp($3)); };
+Statement : IF LPAREN Exp RPAREN M_NEW_SCOPE Statement               { $$ = Statement("", Exp($3)); destroy_current_scope(); };
+Statement : IF LPAREN Exp RPAREN M_NEW_SCOPE Statement M_DES_SCOPE ELSE M_NEW_SCOPE Statement
+{ 
+    $$ = Statement("", Exp($3)); destroy_current_scope(); 
+};
+Statement : WHILE LPAREN Exp RPAREN M_WHILE_ENTER Statement          { $$ = Statement("", Exp($3)); destroy_current_scope(); loop_exited(); };
 Statement : BREAK SC                                                 { $$ = Statement(Break_Cont::BREAK); };
 Statement : CONTINUE SC                                              { $$ = Statement(Break_Cont::CONTINUE); };
 Call : ID LPAREN ExpList RPAREN                                      { $$ = Call($1, ExpList($3)); };
 Call : ID LPAREN RPAREN                                              { $$ = Call($1); };
-ExpList : Exp                                                        { };
-ExpList : Exp COMMA ExpList                                          { };
-Type : INT                                                           { };
-Type : BYTE                                                          { };
-Type : BOOL                                                          { };
-TypeAnnotation :                                                     { };
-TypeAnnotation : CONST                                               { };
+ExpList : Exp                                                        { $$ = ExpList(Exp($1)); };
+ExpList : Exp COMMA ExpList                                          { $$ = ExpList(Exp($1), ExpList($3)); };
+Type : INT                                                           { $$ = Type($1); };
+Type : BYTE                                                          { $$ = Type($1); };
+Type : BOOL                                                          { $$ = Type($1); };
+TypeAnnotation :                                                     { $$ = TypeAnnotation(); };
+TypeAnnotation : CONST                                               { $$ = TypeAnnotation($1); };
 Exp : LPAREN Exp RPAREN                                              { $$ = Exp($2); };
 Exp : Exp BINADD Exp                                                 { $$ = Exp($1, OP_TYPE::BINADD, $2); };
 Exp : Exp BINMUL Exp                                                 { $$ = Exp($1, OP_TYPE::BINMUL, $2); };
@@ -88,8 +96,10 @@ Exp : Exp AND Exp                                                    { $$ = Exp(
 Exp : Exp OR Exp                                                     { $$ = Exp($1, OP_TYPE::OR, $2); };
 Exp : Exp RELATION Exp                                               { $$ = Exp($1, OP_TYPE::RELATION, $2); };
 Exp : Exp EQUALITY Exp                                               { $$ = Exp($1, OP_TYPE::EQUALITY, $2); };
-Exp : LPAREN Type RPAREN Exp                                         {  };
-
+Exp : LPAREN Type RPAREN Exp                                         { $$ = Exp(Type($2), Exp($4)); };
+M_WHILE_ENTER :                                                      { loop_entered(); create_new_scope(); }
+M_NEW_SCOPE :                                                        { create_new_scope(); }
+M_DES_SCOPE :                                                        { destroy_current_scope(); }
 %%
 
 int main() {

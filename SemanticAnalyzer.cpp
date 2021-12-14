@@ -410,3 +410,15 @@ Exp::Exp(const Exp& first, const OP_TYPE& op, const Exp& second) {
         exit(0);
     }
 }
+
+// Exp : LPAREN Type RPAREN Exp
+Exp::Exp(const Type& type, const Exp& exp) {
+    if (type.token_value == "BOOL" || type.token_value == "INT") {
+        if (exp.type == "BOOL" || exp.type == "INT")
+            return;
+        errorMismatch(yylineno);
+        exit(0);
+    }
+    errorMismatch(yylineno);
+    exit(0);
+}
