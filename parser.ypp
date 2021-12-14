@@ -1,5 +1,5 @@
 %{
-    #include "hw3_output.hpp"
+    #include "SemanticAnalyzer.h"
     #include <iostream>
     using namespace output;
     void yyerror(char const*);
@@ -39,10 +39,10 @@
 
 %%
 
-Program : Funcs                                                      {};
-Funcs :                                                              {};
+Program : Funcs                                                      { $$ = Program(); };
+Funcs :                                                              { Funcs funcs; };
 Funcs : FuncDecl Funcs                                               {};
-FuncDecl : RetType ID LPAREN Formals RPAREN LBRACE Statements RBRACE {};
+FuncDecl : RetType ID LPAREN Formals RPAREN LBRACE Statements RBRACE { FuncDecl decl($1.)};
 RetType : Type                                                       {};
 RetType : VOID                                                       {};
 Formals :                                                            {};
@@ -55,17 +55,17 @@ Statements : Statements Statement                                    { };
 Statement : LBRACE Statements RBRACE                                 { };
 Statement : TypeAnnotation Type ID SC                                { };
 Statement : TypeAnnotation Type ID ASSIGN Exp SC                     { };
-Statement : ID ASSIGN Exp SC                                         { };
-Statement : Call SC                                                  { };
-Statement : RETURN SC                                                { };
-Statement : RETURN Exp SC                                            { };
-Statement : IF LPAREN Exp RPAREN Statement                           { };
-Statement : IF LPAREN Exp RPAREN Statement ELSE Statement            { };
-Statement : WHILE LPAREN Exp RPAREN Statement                        { };
-Statement : BREAK SC                                                 { };
-Statement : CONTINUE SC                                              { };
-Call : ID LPAREN ExpList RPAREN                                      { };
-Call : ID LPAREN RPAREN                                              { };
+Statement : ID ASSIGN Exp SC                                         { $$ = Statement($1, Exp($3)); };
+Statement : Call SC                                                  { $$ = Statement(Call($1)); };
+Statement : RETURN SC                                                { $$ = Statement(); };
+Statement : RETURN Exp SC                                            { $$ = Statement(Exp($2)); };
+Statement : IF LPAREN Exp RPAREN Statement                           { $$ = Statement("", Exp($3)); };
+Statement : IF LPAREN Exp RPAREN Statement ELSE Statement            { $$ = Statement("", Exp($3)); };
+Statement : WHILE LPAREN Exp RPAREN Statement                        { $$ = Statement("", Exp($3)); };
+Statement : BREAK SC                                                 { $$ = Statement(Break_Cont::BREAK); };
+Statement : CONTINUE SC                                              { $$ = Statement(Break_Cont::CONTINUE); };
+Call : ID LPAREN ExpList RPAREN                                      { $$ = Call($1, ExpList($3)); };
+Call : ID LPAREN RPAREN                                              { $$ = Call($1); };
 ExpList : Exp                                                        { };
 ExpList : Exp COMMA ExpList                                          { };
 Type : INT                                                           { };
@@ -73,22 +73,22 @@ Type : BYTE                                                          { };
 Type : BOOL                                                          { };
 TypeAnnotation :                                                     { };
 TypeAnnotation : CONST                                               { };
-Exp : LPAREN Exp RPAREN                                              { };
-Exp : Exp BINADD Exp                                                 { };
-Exp : Exp BINMUL Exp                                                 { };
-Exp : ID                                                             { };
-Exp : Call                                                           { };
-Exp : NUM                                                            { };
-Exp : NUM B                                                          { };
-Exp : STRING                                                         { };
-Exp : TRUE                                                           { };
-Exp : FALSE                                                          { };
-Exp : NOT Exp                                                        { };
-Exp : Exp AND Exp                                                    { };
-Exp : Exp OR Exp                                                     { };
-Exp : Exp RELATION Exp                                               { };
-Exp : Exp EQUALITY Exp                                               { };
-Exp : LPAREN Type RPAREN Exp                                         { };
+Exp : LPAREN Exp RPAREN                                              { $$ = Exp($2); };
+Exp : Exp BINADD Exp                                                 { $$ = Exp($1, OP_TYPE::BINADD, $2); };
+Exp : Exp BINMUL Exp                                                 { $$ = Exp($1, OP_TYPE::BINMUL, $2); };
+Exp : ID                                                             { $$ = Exp($1); };
+Exp : Call                                                           { $$ = Exp(Call($1)); };
+Exp : NUM                                                            { $$ = Exp($1, "NUM"); };
+Exp : NUM B                                                          { $$ = Exp($1, "BYTE"); };
+Exp : STRING                                                         { $$ = Exp($1, "STRING"); };
+Exp : TRUE                                                           { $$ = Exp($1, "BOOL"); };
+Exp : FALSE                                                          { $$ = Exp($1, "BOOL"); };
+Exp : NOT Exp                                                        { $$ = Exp(true, $2); };
+Exp : Exp AND Exp                                                    { $$ = Exp($1, OP_TYPE::AND, $2); };
+Exp : Exp OR Exp                                                     { $$ = Exp($1, OP_TYPE::OR, $2); };
+Exp : Exp RELATION Exp                                               { $$ = Exp($1, OP_TYPE::RELATION, $2); };
+Exp : Exp EQUALITY Exp                                               { $$ = Exp($1, OP_TYPE::EQUALITY, $2); };
+Exp : LPAREN Type RPAREN Exp                                         {  };
 
 %%
 

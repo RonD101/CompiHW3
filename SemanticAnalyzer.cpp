@@ -130,13 +130,13 @@ FuncDecl::FuncDecl(const RetType& return_type, const BaseType& func_name, const 
 
 /* Statement : BREAK SC */
 /* Statement : CONTINUE SC */
-Statement::Statement(const BaseType& type) {
+Statement::Statement(const Break_Cont& type) {
     if (num_of_loops > 0)
         return;
-    if (type.token_value == "continue") {
+    if (type == Break_Cont::CONTINUE) {
         errorUnexpectedContinue(yylineno);
         exit(0);
-    } else if (type.token_value == "break") {
+    } else if (type == Break_Cont::BREAK) {
         errorUnexpectedBreak(yylineno);
         exit(0);
     }
@@ -144,8 +144,9 @@ Statement::Statement(const BaseType& type) {
 
 /* Statement : IF LPAREN Exp RPAREN Statement */
 /* Statement : IF LPAREN Exp RPAREN Statement ELSE Statement */
+/* Statement : WHILE LPAREN Exp RPAREN Statement */
 Statement::Statement(const string& type, const Exp& exp) {
-    // Result of if must be bool.
+    // Expression inside if/while statement must be boolean.
     if (exp.type != "BOOL") {
         errorMismatch(yylineno);
         exit(0);
@@ -338,7 +339,7 @@ Exp::Exp(const BaseType& term) {
 }
 
 /* Exp : NOT Exp */
-Exp::Exp(const BaseType& not_mark, const Exp& exp) {
+Exp::Exp(bool not_mark, const Exp& exp) {
     // Not performed on something wich is not boolean.
     if (exp.type != "BOOL") {
         errorMismatch(yylineno);
@@ -373,12 +374,12 @@ Exp::Exp(const Exp& exp) {
 }
 
 /* Exp : Exp RELOP/BINOP Exp */
-Exp::Exp(const Exp& first, const BaseType& operation, const Exp& second, const OP_TYPE& rhs) {
+Exp::Exp(const Exp& first, const OP_TYPE& op, const Exp& second) {
     // Int\Bool vs Int\Bool
     if ((first.type == "INT" || first.type == "BYTE") && (second.type == "INT" || second.type == "BYTE")) {
-        if (rhs == OP_TYPE::EQUALITY || rhs == OP_TYPE::RELATION) 
+        if (op == OP_TYPE::EQUALITY || op == OP_TYPE::RELATION) 
             type = "BOOL";
-        else if (rhs == OP_TYPE::BINADD || rhs == OP_TYPE::BINMUL) {
+        else if (op == OP_TYPE::BINADD || op == OP_TYPE::BINMUL) {
             if (first.type == "INT" || second.type == "INT")
                 type = "INT";
             else 
@@ -387,13 +388,13 @@ Exp::Exp(const Exp& first, const BaseType& operation, const Exp& second, const O
     // Bool vs Bool
     } else if (first.type == "BOOL" && second.type == "BOOL") {
         type = "BOOL";
-        if (rhs == OP_TYPE::AND) {
+        if (op == OP_TYPE::AND) {
             if (first.res_type && second.res_type)
                 res_type = true;
             else
                 res_type = false;
         }
-        else if (rhs == OP_TYPE::OR) {
+        else if (op == OP_TYPE::OR) {
             if (first.res_type || second.res_type)
                 res_type = true;
             else

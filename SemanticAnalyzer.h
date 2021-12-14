@@ -26,6 +26,11 @@ enum class OP_TYPE {
     OR
 };
 
+enum class Break_Cont {
+    BREAK,
+    CONTINUE
+};
+
 class BaseType {
 public:
     BaseType();
@@ -100,11 +105,11 @@ public:
     vector<FormalDecl> formal_list;
     // FormalDecl
     explicit FormalsList(const FormalDecl& decl) { 
-        formal_list.push_back(decl); // int x ---> formal_list[0] = int x
+        formal_list.push_back(decl);
     }
     // FormalDecl COMMA FormalList
     FormalsList(const FormalDecl& decl, const FormalsList& f_list) {
-        formal_list.push_back(decl); // int x, y; ---> formal_list[0] = int x, formal_list[1] = int y
+        formal_list.push_back(decl);
         formal_list.insert(std::end(formal_list), std::begin(f_list.formal_list), std::end(f_list.formal_list));
     }
 };
@@ -139,9 +144,9 @@ public:
     // Call
     explicit Exp(const Call& call);
     // NOT
-    Exp(const BaseType& not_mark, const Exp& exp);
+    Exp(bool not_mark, const Exp& exp);
     // Exp RELOP/BINOP Exp
-    Exp(const Exp& first, const BaseType& operation, const Exp& second, const OP_TYPE& rhs);
+    Exp(const Exp& first, const OP_TYPE& op, const Exp& second);
     // LPAREN Exp RPAREN
     Exp(const Exp& exp);
 };
@@ -208,7 +213,7 @@ public:
     // IF etc...
     Statement(const string& type, const Exp& exp);
     // BREAK, CONTINUE
-    explicit Statement(const BaseType& type);
+    explicit Statement(const Break_Cont& type);
 };
 
 #endif //COMPIHW3_SEMANTICANALYZER_H
