@@ -1,3 +1,0 @@
-"C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E rm -f CMakeFiles\hw3.dir/objects.a
-C:\mingw-w64\mingw32\bin\ar.exe cr CMakeFiles\hw3.dir/objects.a @CMakeFiles\hw3.dir\objects1.rsp
-C:\mingw-w64\mingw32\bin\i686-w64-mingw32-g++.exe -g -Wl,--whole-archive CMakeFiles\hw3.dir/objects.a -Wl,--no-whole-archive -o hw3.exe -Wl,--out-implib,libhw3.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\hw3.dir\linklibs.rsp

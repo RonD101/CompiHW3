@@ -11,21 +11,36 @@
 using std::vector;
 using std::string;
 
+void loop_entered();
+void loop_exited();
+void create_new_scope();
+void destroy_current_scope();
+void check_for_main_correctness();
+
+enum class OP_TYPE {
+    EQUALITY,
+    RELATION,
+    BINADD, 
+    BINMUL,
+    AND,
+    OR
+};
+
 class BaseType {
 public:
     BaseType();
-    string actual_type;
+    string token_value;
     explicit BaseType(const string& str) {
         if (str == "void")
-            actual_type = "VOID";
+            token_value = "VOID";
         else if (str == "bool")
-            actual_type = "BOOL";
+            token_value = "BOOL";
         else if (str == "int")
-            actual_type = "INT";
+            token_value = "INT";
         else if (str == "byte")
-            actual_type = "BYTE";
+            token_value = "BYTE";
         else
-            actual_type = str;
+            token_value = str;
     }
 };
 
@@ -74,7 +89,7 @@ public:
     // The parameter type
     string type;
     // Type ID
-    FormalDecl(const Type& t, const BaseType& id) : BaseType(id.actual_type), type(t.actual_type) {}
+    FormalDecl(const Type& t, const BaseType& id) : BaseType(id.token_value), type(t.token_value) {}
 };
 
 class FormalsList : public BaseType {
@@ -105,7 +120,7 @@ public:
     // Parameter types.
     vector<string> type;
     // RetType ID LPAREN Formals RPAREN LBRACE Statements RBRACE
-    FuncDecl(const RetType& return_type, const BaseType& id, const Formals& params);
+    FuncDecl(const RetType& return_type, const BaseType& func_name, const Formals& params);
 };
 
 class Call; 
@@ -113,16 +128,19 @@ class Call;
 class Exp : public BaseType {
 public:
     string type;
-    // NUM, NUM B, STRING, TRUE, FALSE, ID
-    Exp(const BaseType& terminal, const string& rhs);
+    bool res_type;
+    // NUM, NUM B, STRING, TRUE, FALSE
+    Exp(const BaseType& term, const string& rhs);
+    // ID
+    Exp(const BaseType& term);
     // Call
     explicit Exp(const Call& call);
     // NOT
-    Exp(const BaseType& not_node, const Exp& exp);
+    Exp(const BaseType& not_mark, const Exp& exp);
     // Exp RELOP/BINOP Exp
-    Exp(const Exp& first, const BaseType& operation, const Exp& second, const string& rhs);
+    Exp(const Exp& first, const BaseType& operation, const Exp& second, const OP_TYPE& rhs);
     // LPAREN Exp RPAREN
-    Exp(const Exp& ex);
+    Exp(const Exp& exp);
 };
 
 class ExpList : public BaseType {
