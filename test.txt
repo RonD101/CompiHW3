@@ -6,8 +6,16 @@ void bo(byte y){
   return;
 }
 
+byte tt(const int x, bool t, const byte l, byte lili){
+ int tt = 0;
+  return (int)lili;
+}
+void bro(byte y){
+  return;
+}
 void main() {
     int x;
     byte y;
     i((int)y);
+    tt (x, true, 3b, y);
 }

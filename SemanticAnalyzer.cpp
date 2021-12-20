@@ -194,7 +194,7 @@ Statement::Statement(Exp* exp) {
                 exit(0);
             }
             if (row.types[0] != exp->type) {
-                if (row.types[0] == "INT" && exp->type == "BYTE" || row.types[0] == "BYTE" && exp->type == "INT") 
+                if (row.types[0] == "INT" && exp->type == "BYTE")
                     return;
                 else {
                     // Return int from bool func.
