@@ -216,8 +216,7 @@ public:
     // IF etc...
     Statement(const string& type, const shared_ptr<Exp>& exp);
     // BREAK, CONTINUE
-    explicit Statement(const shared_ptr<Break_Cont>& type);
+    explicit Statement(const Break_Cont& type);
 };
-//renene!!!!!
 
 #endif //COMPIHW3_SEMANTICANALYZER_H

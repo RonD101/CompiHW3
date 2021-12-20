@@ -99,7 +99,7 @@ Funcs::Funcs() {
 }
 
 /* FuncDecl : RetType ID LPAREN Formals RPAREN LBRACE Statements RBRACE */
-FuncDecl::FuncDecl(const shared_ptr<RetType>& return_type, const shared_ptr<RetType>& func_name, const shared_ptr<Formals>& params) {
+FuncDecl::FuncDecl(const shared_ptr<RetType>& return_type, const shared_ptr<BaseType>& func_name, const shared_ptr<Formals>& params) {
     // Redecleration of function.
     if (is_sym_dec(func_name->token_value, true)) {
         errorDef(yylineno, func_name->token_value);
