@@ -40,50 +40,50 @@
 
 %%
 
-Program : Funcs                                                      { $$ = new Program>(); check_for_main_correctness(); };
+Program : Funcs                                                      { $$ = new Program(); check_for_main_correctness(); };
 Funcs :                                                              { $$ = new Funcs(); };
-Funcs : FuncDecl Funcs                                               { $$ = new Funcs>(); };
+Funcs : FuncDecl Funcs                                               { $$ = new Funcs(); };
 FuncDecl : RetType ID M_NEW_SCOPE LPAREN Formals RPAREN LBRACE Statements RBRACE
 { 
-    $$ =  new FuncDecl($1, $2, $5);
+    $$ =  new FuncDecl(dynamic_cast<RetType*>($1), $2, dynamic_cast<Formals*>($5));
     destroy_current_scope();
 };
-RetType : Type                                                       { $$ = new RetType($1); };
+RetType : Type                                                       { $$ = new RetType(dynamic_cast<Type*>($1)); };
 RetType : VOID                                                       { $$ = new RetType($1); };
 Formals :                                                            { $$ = new Formals(); };
-Formals : FormalsList                                                { $$ = new Formals($1); };
-FormalsList : FormalDecl                                             { $$ = new FormalsList($1); };
-FormalsList : FormalDecl COMMA FormalsList                           { $$ = new FormalsList($1, $3); };
-FormalDecl : TypeAnnotation Type ID                                  { $$ = new FormalDecl($2, $3, $1); };
-Statements : Statement                                               { $$ = new Statements($1); };
-Statements : Statements Statement                                    { $$ = new Statements$1,$2); };
-Statement : LBRACE M_NEW_SCOPE Statements RBRACE                     { $$ = new Statement($3; destroy_current_scope(); };
-Statement : TypeAnnotation Type ID SC                                { $$ = new Statement($2, $3, $1); };
-Statement : TypeAnnotation Type ID ASSIGN Exp SC                     { $$ = new Statement($2, $3, $5, $1); };
-Statement : ID ASSIGN Exp SC                                         { $$ = new Statement($1, $3); };
-Statement : Call SC                                                  { $$ = new Statement($1); };
+Formals : FormalsList                                                { $$ = new Formals(dynamic_cast<FormalsList*>($1)); };
+FormalsList : FormalDecl                                             { $$ = new FormalsList(dynamic_cast<FormalDecl*>($1)); };
+FormalsList : FormalDecl COMMA FormalsList                           { $$ = new FormalsList(dynamic_cast<FormalDecl*>($1), dynamic_cast<FormalsList*>($3)); };
+FormalDecl : TypeAnnotation Type ID                                  { $$ = new FormalDecl(dynamic_cast<Type*>($2), $3, dynamic_cast<TypeAnnotation*>($1)); };
+Statements : Statement                                               { $$ = new Statements(dynamic_cast<Statement*>($1)); };
+Statements : Statements Statement                                    { $$ = new Statements(dynamic_cast<Statements*>($1), dynamic_cast<Statement*>($2)); };
+Statement : LBRACE M_NEW_SCOPE Statements RBRACE                     { $$ = new Statement(dynamic_cast<Statements*>($3)); destroy_current_scope(); };
+Statement : TypeAnnotation Type ID SC                                { $$ = new Statement(dynamic_cast<Type*>($2), $3, dynamic_cast<TypeAnnotation*>($1)); };
+Statement : TypeAnnotation Type ID ASSIGN Exp SC                     { $$ = new Statement(dynamic_cast<Type*>($2), $3, dynamic_cast<Exp*>($5), dynamic_cast<TypeAnnotation*>($1)); };
+Statement : ID ASSIGN Exp SC                                         { $$ = new Statement($1, dynamic_cast<Exp*>($3)); };
+Statement : Call SC                                                  { $$ = new Statement(dynamic_cast<Call*>($1)); };
 Statement : RETURN SC                                                { $$ = new Statement(); };
-Statement : RETURN Exp SC                                            { $$ = new Statement($2); };
-Statement : IF LPAREN Exp RPAREN M_NEW_SCOPE Statement               { $$ = new Statement("", $3); destroy_current_scope(); };
+Statement : RETURN Exp SC                                            { $$ = new Statement(dynamic_cast<Exp*>($2)); };
+Statement : %prec IF LPAREN Exp RPAREN M_NEW_SCOPE Statement         { $$ = new Statement("", dynamic_cast<Exp*>($3)); destroy_current_scope(); };
 Statement : IF LPAREN Exp RPAREN M_NEW_SCOPE Statement M_DES_SCOPE ELSE M_NEW_SCOPE Statement
 { 
-    $$ = new Statement("", $3); destroy_current_scope(); 
+    $$ = new Statement("", dynamic_cast<Exp*>($3)); destroy_current_scope(); 
 };
-Statement : WHILE LPAREN Exp RPAREN M_WHILE_ENTER Statement          { $$ = new Statement("", $3); destroy_current_scope(); loop_exited(); };
+Statement : WHILE LPAREN Exp RPAREN M_WHILE_ENTER Statement          { $$ = new Statement("", dynamic_cast<Exp*>($3)); destroy_current_scope(); loop_exited(); };
 Statement : BREAK SC                                                 { $$ = new Statement(Break_Cont::BREAK); };
 Statement : CONTINUE SC                                              { $$ = new Statement(Break_Cont::CONTINUE); };
-Call : ID LPAREN ExpList RPAREN                                      { $$ = new Call($1, $3); };
+Call : ID LPAREN ExpList RPAREN                                      { $$ = new Call($1, dynamic_cast<ExpList*>($3)); };
 Call : ID LPAREN RPAREN                                              { $$ = new Call($1); };
-ExpList : Exp                                                        { $$ = new ExpList($1); };
-ExpList : Exp COMMA ExpList                                          { $$ = new ExpList($1, $3); };
+ExpList : Exp                                                        { $$ = new ExpList(dynamic_cast<Exp*>($1)); };
+ExpList : Exp COMMA ExpList                                          { $$ = new ExpList(dynamic_cast<Exp*>($1), dynamic_cast<ExpList*>($3)); };
 Type : INT                                                           { $$ = new Type($1); };
 Type : BYTE                                                          { $$ = new Type($1); };
 Type : BOOL                                                          { $$ = new Type($1); };
 TypeAnnotation :                                                     { $$ = new TypeAnnotation(); };
 TypeAnnotation : CONST                                               { $$ = new TypeAnnotation($1); };
-Exp : LPAREN Exp RPAREN                                              { $$ = new Exp($2); };
-Exp : Exp BINADD Exp                                                 { $$ = new Exp($1, OP_TYPE::BINADD, $2); };
-Exp : Exp BINMUL Exp                                                 { $$ = new Exp($1, OP_TYPE::BINMUL, $2); };
+Exp : LPAREN Exp RPAREN                                              { $$ = new Exp(dynamic_cast<Exp*>($2)); };
+Exp : Exp BINADD Exp                                                 { $$ = new Exp(dynamic_cast<Exp*>($1), OP_TYPE::BINADD, dynamic_cast<Exp*>($2)); };
+Exp : Exp BINMUL Exp                                                 { $$ = new Exp(dynamic_cast<Exp*>($1), OP_TYPE::BINMUL, dynamic_cast<Exp*>($2)); };
 Exp : ID                                                             { $$ = new Exp($1); };
 Exp : Call                                                           { $$ = new Exp($1); };
 Exp : NUM                                                            { $$ = new Exp($1, "NUM"); };
@@ -91,13 +91,13 @@ Exp : NUM B                                                          { $$ = new 
 Exp : STRING                                                         { $$ = new Exp($1, "STRING"); };
 Exp : TRUE                                                           { $$ = new Exp($1, "BOOL"); };
 Exp : FALSE                                                          { $$ = new Exp($1, "BOOL"); };
-Exp : NOT Exp                                                        { $$ = new Exp(true, $2); };
-Exp : Exp AND Exp                                                    { $$ = new Exp(dynamic_cast<Exp*>$1, OP_TYPE::AND, dynamic_cast<Exp*>$2); };
-Exp : Exp OR Exp                                                     { $$ = new Exp(dynamic_cast<Exp*>$1, OP_TYPE::OR, dynamic_cast<Exp*>$2); };
-Exp : Exp RELATION Exp                                               { $$ = new Exp(dynamic_cast<Exp*>$1, OP_TYPE::RELATION, dynamic_cast<Exp*>$2); };
-Exp : Exp EQUALITY Exp                                               { $$ = new Exp(dynamic_cast<Exp*>$1, OP_TYPE::EQUALITY, dynamic_cast<Exp*>$2); };
+Exp : NOT Exp                                                        { $$ = new Exp(true, dynamic_cast<Exp*>($2)); };
+Exp : Exp AND Exp                                                    { $$ = new Exp(dynamic_cast<Exp*>($1), OP_TYPE::AND, dynamic_cast<Exp*>($2)); };
+Exp : Exp OR Exp                                                     { $$ = new Exp(dynamic_cast<Exp*>($1), OP_TYPE::OR, dynamic_cast<Exp*>($2)); };
+Exp : Exp RELATION Exp                                               { $$ = new Exp(dynamic_cast<Exp*>($1), OP_TYPE::RELATION, dynamic_cast<Exp*>($2)); };
+Exp : Exp EQUALITY Exp                                               { $$ = new Exp(dynamic_cast<Exp*>($1), OP_TYPE::EQUALITY, dynamic_cast<Exp*>($2)); };
 Exp : LPAREN Type RPAREN Exp                                         { $$ = new Exp(dynamic_cast<Type*>($2), dynamic_cast<Exp*>($4)); };
-M_WHILE_ENTER :                                                      { loop_entered(); create_new_scope(); }
+M_WHILE_ENTER :                                                      { loop_entered(); }
 M_NEW_SCOPE :                                                        { create_new_scope(); }
 M_DES_SCOPE :                                                        { destroy_current_scope(); }
 %%

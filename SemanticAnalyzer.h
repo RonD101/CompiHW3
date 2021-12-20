@@ -33,7 +33,7 @@ enum class Break_Cont {
 
 class BaseType {
 public:
-    BaseType();
+    BaseType() { token_value = ""; }
     string token_value;
     explicit BaseType(const string& str) {
         if (str == "void")
@@ -92,13 +92,13 @@ public:
     explicit RetType(BaseType* type) : BaseType(*type) {}
 };
 
-class TypeAnnotation : BaseType {
+class TypeAnnotation : public BaseType {
 public:
     bool is_const = false;
     // EPSILON
     TypeAnnotation() = default;
     // CONST
-    TypeAnnotation(const string& rhs) : BaseType(rhs) {
+    explicit TypeAnnotation(BaseType* type) : BaseType(type->token_value) {
         is_const = true;
     }
 };
@@ -192,15 +192,15 @@ class Statement;
 class Statements : public BaseType {
 public:
     // Statement
-    explicit Statements(Statement* rhs_statement);
+    explicit Statements(Statement* rhs_statement) {}
     // Statements Statement
-    Statements(Statements* rhs_statements, Statement* rhs_statement);
+    Statements(Statements* rhs_statements, Statement* rhs_statement) {}
 };
 
 class Statement : public BaseType {
 public:
     // LBRACE Statements RBRACE
-    explicit Statement(Statements* rhs_statements);
+    explicit Statement(Statements* rhs_statements) {}
     // TypeAnnotation Type ID SC
     Statement(Type* type, BaseType* id, TypeAnnotation* const_anno);
     // TypeAnnotation Type ID Assign Exp SC
@@ -208,7 +208,7 @@ public:
     // ID Assign Exp SC
     Statement(BaseType* id, Exp* exp);
     // Call SC
-    explicit Statement(Call* call);
+    explicit Statement(Call* call) {}
     // Return SC (void)
     explicit Statement();
     // Return Exp SC (not void)
