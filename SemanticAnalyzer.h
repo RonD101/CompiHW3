@@ -183,6 +183,7 @@ public:
 
 class Call : public BaseType {
 public:
+    string ret_type_of_called_func;
     // ID LPAREN ExpList RPAREN
     Call(BaseType* id, ExpList* list);
     // ID LPAREN RPAREN

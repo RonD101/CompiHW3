@@ -133,9 +133,9 @@ FuncDecl::FuncDecl(RetType* return_type, BaseType* func_name, Formals* params) {
     SymbolEntry new_func(func_name->token_value, param_types, 0, true, false, const_indicator);
     tables_stack.front().rows.push_back(new_func);
     for (const auto& param : params->formals) {
-        int new_offset = offset_stack.back() + 1;
+        int new_offset = --offset_stack.back();
         vector<string> varType = { param.param_type };
-        tables_stack.front().rows.push_back(SymbolEntry(param.token_value, varType, new_offset, false, param.is_param_const));
+        tables_stack.back().rows.push_back(SymbolEntry(param.token_value, varType, new_offset, false, param.is_param_const));
     }
     current_function_name = func_name->token_value;
 }
@@ -240,9 +240,8 @@ Statement::Statement(Type* type, BaseType* id, Exp* exp, TypeAnnotation* const_a
         errorDef(yylineno, id->token_value);
         exit(0);
     }
-
     if (type->token_value == exp->type || (type->token_value == "INT" && exp->type == "BYTE")) {
-        int new_offset = offset_stack.back() + 1;
+        int new_offset = offset_stack.back()++;
         vector<string> varType = { type->token_value };
         SymbolEntry new_sym(id->token_value, varType, new_offset, false, const_anno->is_const);
         tables_stack.back().rows.push_back(new_sym);
@@ -263,7 +262,7 @@ Statement::Statement(Type* type, BaseType* id, TypeAnnotation* const_anno) {
         errorConstDef(yylineno);
         exit(0);
     }
-    int new_offset = offset_stack.back() + 1;
+    int new_offset = offset_stack.back()++;
     vector<string> varType = { type->token_value };
     SymbolEntry new_sym(id->token_value, varType, new_offset, false, false);
     tables_stack.back().rows.push_back(new_sym);
@@ -295,6 +294,7 @@ Call::Call(BaseType* id, ExpList* param_list) {
                 errorPrototypeMismatch(yylineno, id->token_value, row.types);
                 exit(0);
             }
+            ret_type_of_called_func = row.types[0];
             return; // Everything is fine.
         }
     }
@@ -319,6 +319,7 @@ Call::Call(BaseType* id) {
                 errorPrototypeMismatch(yylineno, id->token_value, row.types);
                 exit(0);
             }
+            ret_type_of_called_func = row.types[0];
             return; // Everything is fine.
         }
     }
@@ -329,7 +330,7 @@ Call::Call(BaseType* id) {
 /* Exp : Call */
 Exp::Exp(Call* call) {
     token_value = call->token_value;
-    type = call->token_value;
+    type = call->ret_type_of_called_func;
 }
 
 /* Exp : ID */

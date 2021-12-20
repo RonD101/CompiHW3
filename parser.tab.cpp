@@ -1352,7 +1352,7 @@ yyreduce:
   case 24: /* Statement: LPAREN Exp RPAREN M_NEW_SCOPE Statement M_DES_SCOPE ELSE M_NEW_SCOPE Statement  */
 #line 67 "parser.ypp"
 { 
-    yyval = new Statement("", dynamic_cast<Exp*>(yyvsp[-6])); destroy_current_scope(); 
+    std::cout << "after finish else\n"; yyval = new Statement("", dynamic_cast<Exp*>(yyvsp[-6])); destroy_current_scope(); 
 }
 #line 1358 "parser.tab.cpp"
     break;
@@ -1437,13 +1437,13 @@ yyreduce:
 
   case 38: /* Exp: Exp BINADD Exp  */
 #line 83 "parser.ypp"
-                                                                     { yyval = new Exp(dynamic_cast<Exp*>(yyvsp[-2]), OP_TYPE::BINADD, dynamic_cast<Exp*>(yyvsp[-1])); }
+                                                                     { yyval = new Exp(dynamic_cast<Exp*>(yyvsp[-2]), OP_TYPE::BINADD, dynamic_cast<Exp*>(yyvsp[0])); }
 #line 1442 "parser.tab.cpp"
     break;
 
   case 39: /* Exp: Exp BINMUL Exp  */
 #line 84 "parser.ypp"
-                                                                     { yyval = new Exp(dynamic_cast<Exp*>(yyvsp[-2]), OP_TYPE::BINMUL, dynamic_cast<Exp*>(yyvsp[-1])); }
+                                                                     { yyval = new Exp(dynamic_cast<Exp*>(yyvsp[-2]), OP_TYPE::BINMUL, dynamic_cast<Exp*>(yyvsp[0])); }
 #line 1448 "parser.tab.cpp"
     break;
 
@@ -1455,7 +1455,7 @@ yyreduce:
 
   case 41: /* Exp: Call  */
 #line 86 "parser.ypp"
-                                                                     { yyval = new Exp(yyvsp[0]); }
+                                                                     { yyval = new Exp(dynamic_cast<Call*>(yyvsp[0])); }
 #line 1460 "parser.tab.cpp"
     break;
 
@@ -1497,13 +1497,13 @@ yyreduce:
 
   case 48: /* Exp: Exp AND Exp  */
 #line 93 "parser.ypp"
-                                                                     { yyval = new Exp(dynamic_cast<Exp*>(yyvsp[-2]), OP_TYPE::AND, dynamic_cast<Exp*>(yyvsp[-1])); }
+                                                                     { yyval = new Exp(dynamic_cast<Exp*>(yyvsp[-2]), OP_TYPE::AND, dynamic_cast<Exp*>(yyvsp[0])); }
 #line 1502 "parser.tab.cpp"
     break;
 
   case 49: /* Exp: Exp OR Exp  */
 #line 94 "parser.ypp"
-                                                                     { yyval = new Exp(dynamic_cast<Exp*>(yyvsp[-2]), OP_TYPE::OR, dynamic_cast<Exp*>(yyvsp[-1])); }
+                                                                     { yyval = new Exp(dynamic_cast<Exp*>(yyvsp[-2]), OP_TYPE::OR, dynamic_cast<Exp*>(yyvsp[0])); }
 #line 1508 "parser.tab.cpp"
     break;
 
