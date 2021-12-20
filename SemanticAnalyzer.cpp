@@ -99,7 +99,7 @@ Funcs::Funcs() {
 }
 
 /* FuncDecl : RetType ID LPAREN Formals RPAREN LBRACE Statements RBRACE */
-FuncDecl::FuncDecl(const shared_ptr<RetType>& return_type, BaseType* func_name, const shared_ptr<Formals>& params) {
+FuncDecl::FuncDecl(RetType* return_type, BaseType* func_name, Formals* params) {
     // Redecleration of function.
     if (is_sym_dec(func_name->token_value, true)) {
         errorDef(yylineno, func_name->token_value);
@@ -145,7 +145,7 @@ Statement::Statement(const Break_Cont& type) {
 /* Statement : IF LPAREN Exp RPAREN Statement */
 /* Statement : IF LPAREN Exp RPAREN Statement ELSE Statement */
 /* Statement : WHILE LPAREN Exp RPAREN Statement */
-Statement::Statement(const string& type, const shared_ptr<Exp>& exp) {
+Statement::Statement(const string& type, Exp* exp) {
     // Expression inside if/while statement must be boolean.
     if (exp->type != "BOOL") {
         errorMismatch(yylineno);
@@ -170,7 +170,7 @@ Statement::Statement() {
 }
 
 /* Statement : RETURN Exp SC */
-Statement::Statement(const shared_ptr<Exp>& exp) {
+Statement::Statement(Exp* exp) {
     for (auto cur_tab = tables_stack.rbegin(); cur_tab != tables_stack.rend(); ++cur_tab) {
         for (const auto& row : cur_tab->rows) {
             if (!row.is_func || row.name != current_function_name) 
@@ -195,7 +195,7 @@ Statement::Statement(const shared_ptr<Exp>& exp) {
 }
 
 /* Statement : ID ASSIGN Exp SC */
-Statement::Statement(BaseType* id, const shared_ptr<Exp>& exp) {
+Statement::Statement(BaseType* id, Exp* exp) {
     // Assignment to undeclared var.
     if (!is_sym_dec(id->token_value, false)) {
         errorUndef(yylineno, id->token_value);
@@ -222,7 +222,7 @@ Statement::Statement(BaseType* id, const shared_ptr<Exp>& exp) {
 }
 
 /* Statement : TypeAnnotation Type ID ASSIGN Exp SC */
-Statement::Statement(const shared_ptr<Type>& type, BaseType* id, const shared_ptr<Exp>& exp, const shared_ptr<TypeAnnotation>& const_anno) {
+Statement::Statement(Type* type, BaseType* id, Exp* exp, TypeAnnotation* const_anno) {
     // Symbol redefinition.
     if (is_sym_dec(id->token_value, false)) {
         errorDef(yylineno, id->token_value);
@@ -241,7 +241,7 @@ Statement::Statement(const shared_ptr<Type>& type, BaseType* id, const shared_pt
 }
 
 /* Statement : TypeAnnotation Type ID SC */
-Statement::Statement(const shared_ptr<Type>& type, BaseType* id, const shared_ptr<TypeAnnotation>& const_anno) {
+Statement::Statement(Type* type, BaseType* id, TypeAnnotation* const_anno) {
     // Symbol redefinition.
     if (is_sym_dec(id->token_value, false)) {
         errorDef(yylineno, id->token_value);
@@ -258,7 +258,7 @@ Statement::Statement(const shared_ptr<Type>& type, BaseType* id, const shared_pt
 }
 
 /* Call : ID LPAREN ExpList RPAREN */
-Call::Call(BaseType* id, const shared_ptr<ExpList>& param_list) {
+Call::Call(BaseType* id, ExpList* param_list) {
     for (auto& table : tables_stack) {
         for (auto& row : table.rows) {
             if (row.name != id->token_value)
@@ -315,7 +315,7 @@ Call::Call(BaseType* id) {
 }
 
 /* Exp : Call */
-Exp::Exp(const shared_ptr<Call>& call) {
+Exp::Exp(Call* call) {
     token_value = call->token_value;
     type = call->token_value;
 }
@@ -339,7 +339,7 @@ Exp::Exp(BaseType* term) {
 }
 
 /* Exp : NOT Exp */
-Exp::Exp(bool not_mark, const shared_ptr<Exp>& exp) {
+Exp::Exp(bool not_mark, Exp* exp) {
     // Not performed on something wich is not boolean.
     if (exp->type != "BOOL") {
         errorMismatch(yylineno);
@@ -367,14 +367,14 @@ Exp::Exp(BaseType* term, const string& rhs) : BaseType(term->token_value) {
 }
 
 /* Exp : LPAREN Exp RPAREN */
-Exp::Exp(const shared_ptr<Exp>& exp) {
+Exp::Exp(Exp* exp) {
     token_value = exp->token_value;
     type = exp->type;
     res_type = exp->res_type;
 }
 
 /* Exp : Exp RELOP/BINOP Exp */
-Exp::Exp(const shared_ptr<Exp>& first, const OP_TYPE& op, const shared_ptr<Exp>& second) {
+Exp::Exp(Exp* first, const OP_TYPE& op, Exp* second) {
     // Int\Bool vs Int\Bool
     if ((first->type == "INT" || first->type == "BYTE") && (second->type == "INT" || second->type == "BYTE")) {
         if (op == OP_TYPE::EQUALITY || op == OP_TYPE::RELATION) 
@@ -412,7 +412,7 @@ Exp::Exp(const shared_ptr<Exp>& first, const OP_TYPE& op, const shared_ptr<Exp>&
 }
 
 // Exp : LPAREN Type RPAREN Exp
-Exp::Exp(const shared_ptr<Type>& type, const shared_ptr<Exp>& exp) {
+Exp::Exp(Type* type, Exp* exp) {
     if (type->token_value == "BOOL" || type->token_value == "INT") {
         if (exp->type == "BOOL" || exp->type == "INT")
             return;

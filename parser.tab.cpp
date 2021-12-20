@@ -1206,26 +1206,26 @@ yyreduce:
     {
   case 2: /* Program: Funcs  */
 #line 43 "parser.ypp"
-                                                                     { yyval = make_shared<Program>(); check_for_main_correctness(); }
+                                                                     { yyval = new Program>(); check_for_main_correctness(); }
 #line 1211 "parser.tab.cpp"
     break;
 
   case 3: /* Funcs: %empty  */
 #line 44 "parser.ypp"
-                                                                     { yyval =  make_shared<Funcs>(); }
+                                                                     { yyval = new Funcs(); }
 #line 1217 "parser.tab.cpp"
     break;
 
   case 4: /* Funcs: FuncDecl Funcs  */
 #line 45 "parser.ypp"
-                                                                     { yyval =  make_shared<Funcs>(); }
+                                                                     { yyval = new Funcs>(); }
 #line 1223 "parser.tab.cpp"
     break;
 
   case 5: /* FuncDecl: RetType ID M_NEW_SCOPE LPAREN Formals RPAREN LBRACE Statements RBRACE  */
 #line 47 "parser.ypp"
 { 
-    yyval =  make_shared<FuncDecl>(make_shared<RetType>(yyvsp[-8]), yyvsp[-7], make_shared<Formals(yyvsp[-4])>);
+    yyval =  new FuncDecl(yyvsp[-8], yyvsp[-7], yyvsp[-4]);
     destroy_current_scope();
 }
 #line 1232 "parser.tab.cpp"
@@ -1233,279 +1233,279 @@ yyreduce:
 
   case 6: /* RetType: Type  */
 #line 51 "parser.ypp"
-                                                                     { yyval = make_shared<RetType>(make_shared<Type>(yyvsp[0])); }
+                                                                     { yyval = new RetType(yyvsp[0]); }
 #line 1238 "parser.tab.cpp"
     break;
 
   case 7: /* RetType: VOID  */
 #line 52 "parser.ypp"
-                                                                     { yyval = make_shared<RetType>(yyvsp[0]); }
+                                                                     { yyval = new RetType(yyvsp[0]); }
 #line 1244 "parser.tab.cpp"
     break;
 
   case 8: /* Formals: %empty  */
 #line 53 "parser.ypp"
-                                                                     { yyval = make_shared<Formals>(); }
+                                                                     { yyval = new Formals(); }
 #line 1250 "parser.tab.cpp"
     break;
 
   case 9: /* Formals: FormalsList  */
 #line 54 "parser.ypp"
-                                                                     { yyval = make_shared<Formals>(make_shared<FormalsList>(yyvsp[0])); }
+                                                                     { yyval = new Formals(yyvsp[0]); }
 #line 1256 "parser.tab.cpp"
     break;
 
   case 10: /* FormalsList: FormalDecl  */
 #line 55 "parser.ypp"
-                                                                     { yyval = make_shared<FormalsList>(make_shared<FormalDecl>(yyvsp[0])); }
+                                                                     { yyval = new FormalsList(yyvsp[0]); }
 #line 1262 "parser.tab.cpp"
     break;
 
   case 11: /* FormalsList: FormalDecl COMMA FormalsList  */
 #line 56 "parser.ypp"
-                                                                     { yyval = make_shared<FormalsList>(make_shared<FormalDecl>(yyvsp[-2]), make_shared<FormalsList>(yyvsp[0])); }
+                                                                     { yyval = new FormalsList(yyvsp[-2], yyvsp[0]); }
 #line 1268 "parser.tab.cpp"
     break;
 
   case 12: /* FormalDecl: TypeAnnotation Type ID  */
 #line 57 "parser.ypp"
-                                                                     { yyval = make_shared<FormalDecl>(make_shared<Type>(yyvsp[-1]), yyvsp[0], make_shared<TypeAnnotation>(yyvsp[-2])); }
+                                                                     { yyval = new FormalDecl(yyvsp[-1], yyvsp[0], yyvsp[-2]); }
 #line 1274 "parser.tab.cpp"
     break;
 
   case 13: /* Statements: Statement  */
 #line 58 "parser.ypp"
-                                                                     { yyval = make_shared<Statements>(make_shared<Statement>(yyvsp[0])); }
+                                                                     { yyval = new Statements(yyvsp[0]); }
 #line 1280 "parser.tab.cpp"
     break;
 
   case 14: /* Statements: Statements Statement  */
 #line 59 "parser.ypp"
-                                                                     { yyval = make_shared<Statements>(make_shared<Statements>(yyvsp[-1]), make_shared<Statement>(yyvsp[0])); }
+                                                                     { yyval = new Statementsyyvsp[-1],yyvsp[0]); }
 #line 1286 "parser.tab.cpp"
     break;
 
   case 15: /* Statement: LBRACE M_NEW_SCOPE Statements RBRACE  */
 #line 60 "parser.ypp"
-                                                                     { yyval = make_shared<Statement>(make_shared<Statements>(yyvsp[-1]); destroy_current_scope(); }
+                                                                     { yyval = new Statement(yyvsp[-1]; destroy_current_scope(); }
 #line 1292 "parser.tab.cpp"
     break;
 
   case 16: /* Statement: TypeAnnotation Type ID SC  */
 #line 61 "parser.ypp"
-                                                                     { yyval = make_shared<Statement>(make_shared<Type>(yyvsp[-2]), yyvsp[-1], make_shared<TypeAnnotation>(yyvsp[-3])); }
+                                                                     { yyval = new Statement(yyvsp[-2], yyvsp[-1], yyvsp[-3]); }
 #line 1298 "parser.tab.cpp"
     break;
 
   case 17: /* Statement: TypeAnnotation Type ID ASSIGN Exp SC  */
 #line 62 "parser.ypp"
-                                                                     { yyval = make_shared<Statement>(make_shared<Type>(yyvsp[-4]), yyvsp[-3], make_shared<Exp>(yyvsp[-1]), make_shared<TypeAnnotation>(yyvsp[-5])); }
+                                                                     { yyval = new Statement(yyvsp[-4], yyvsp[-3], yyvsp[-1], yyvsp[-5]); }
 #line 1304 "parser.tab.cpp"
     break;
 
   case 18: /* Statement: ID ASSIGN Exp SC  */
 #line 63 "parser.ypp"
-                                                                     { yyval = make_shared<Statement>(yyvsp[-3], make_shared<Exp>(yyvsp[-1])); }
+                                                                     { yyval = new Statement(yyvsp[-3], yyvsp[-1]); }
 #line 1310 "parser.tab.cpp"
     break;
 
   case 19: /* Statement: Call SC  */
 #line 64 "parser.ypp"
-                                                                     { yyval = make_shared<Statement>(make_shared<Call>(yyvsp[-1])); }
+                                                                     { yyval = new Statement(yyvsp[-1]); }
 #line 1316 "parser.tab.cpp"
     break;
 
   case 20: /* Statement: RETURN SC  */
 #line 65 "parser.ypp"
-                                                                     { yyval = make_shared<Statement>(); }
+                                                                     { yyval = new Statement(); }
 #line 1322 "parser.tab.cpp"
     break;
 
   case 21: /* Statement: RETURN Exp SC  */
 #line 66 "parser.ypp"
-                                                                     { yyval = make_shared<Statement>(make_shared<Exp>(yyvsp[-1])); }
+                                                                     { yyval = new Statement(yyvsp[-1]); }
 #line 1328 "parser.tab.cpp"
     break;
 
   case 22: /* Statement: IF LPAREN Exp RPAREN M_NEW_SCOPE Statement  */
 #line 67 "parser.ypp"
-                                                                     { yyval = make_shared<Statement>("", make_shared<Exp>(yyvsp[-3])); destroy_current_scope(); }
+                                                                     { yyval = new Statement("", yyvsp[-3]); destroy_current_scope(); }
 #line 1334 "parser.tab.cpp"
     break;
 
   case 23: /* Statement: IF LPAREN Exp RPAREN M_NEW_SCOPE Statement M_DES_SCOPE ELSE M_NEW_SCOPE Statement  */
 #line 69 "parser.ypp"
 { 
-    yyval = make_shared<Statement>("", make_shared<Exp>(yyvsp[-7])); destroy_current_scope(); 
+    yyval = new Statement("", yyvsp[-7]); destroy_current_scope(); 
 }
 #line 1342 "parser.tab.cpp"
     break;
 
   case 24: /* Statement: WHILE LPAREN Exp RPAREN M_WHILE_ENTER Statement  */
 #line 72 "parser.ypp"
-                                                                     { yyval = make_shared<Statement>("", make_shared<Exp>(yyvsp[-3])); destroy_current_scope(); loop_exited(); }
+                                                                     { yyval = new Statement("", yyvsp[-3]); destroy_current_scope(); loop_exited(); }
 #line 1348 "parser.tab.cpp"
     break;
 
   case 25: /* Statement: BREAK SC  */
 #line 73 "parser.ypp"
-                                                                     { yyval = make_shared<Statement>(Break_Cont::BREAK); }
+                                                                     { yyval = new Statement(Break_Cont::BREAK); }
 #line 1354 "parser.tab.cpp"
     break;
 
   case 26: /* Statement: CONTINUE SC  */
 #line 74 "parser.ypp"
-                                                                     { yyval = make_shared<Statement>(Break_Cont::CONTINUE); }
+                                                                     { yyval = new Statement(Break_Cont::CONTINUE); }
 #line 1360 "parser.tab.cpp"
     break;
 
   case 27: /* Call: ID LPAREN ExpList RPAREN  */
 #line 75 "parser.ypp"
-                                                                     { yyval = make_shared<Call>(yyvsp[-3], make_shared<ExpList>(yyvsp[-1])); }
+                                                                     { yyval = new Call(yyvsp[-3], yyvsp[-1]); }
 #line 1366 "parser.tab.cpp"
     break;
 
   case 28: /* Call: ID LPAREN RPAREN  */
 #line 76 "parser.ypp"
-                                                                     { yyval = make_shared<Call>(yyvsp[-2]); }
+                                                                     { yyval = new Call(yyvsp[-2]); }
 #line 1372 "parser.tab.cpp"
     break;
 
   case 29: /* ExpList: Exp  */
 #line 77 "parser.ypp"
-                                                                     { yyval = make_shared<ExpList>(make_shared<Exp>(yyvsp[0])); }
+                                                                     { yyval = new ExpList(yyvsp[0]); }
 #line 1378 "parser.tab.cpp"
     break;
 
   case 30: /* ExpList: Exp COMMA ExpList  */
 #line 78 "parser.ypp"
-                                                                     { yyval = make_shared<ExpList>(make_shared<Exp>(yyvsp[-2]), make_shared<ExpList>(yyvsp[0])); }
+                                                                     { yyval = new ExpList(yyvsp[-2], yyvsp[0]); }
 #line 1384 "parser.tab.cpp"
     break;
 
   case 31: /* Type: INT  */
 #line 79 "parser.ypp"
-                                                                     { yyval = make_shared<Type>(yyvsp[0]); }
+                                                                     { yyval = new Type(yyvsp[0]); }
 #line 1390 "parser.tab.cpp"
     break;
 
   case 32: /* Type: BYTE  */
 #line 80 "parser.ypp"
-                                                                     { yyval = make_shared<Type>(yyvsp[0]); }
+                                                                     { yyval = new Type(yyvsp[0]); }
 #line 1396 "parser.tab.cpp"
     break;
 
   case 33: /* Type: BOOL  */
 #line 81 "parser.ypp"
-                                                                     { yyval = make_shared<Type>(yyvsp[0]); }
+                                                                     { yyval = new Type(yyvsp[0]); }
 #line 1402 "parser.tab.cpp"
     break;
 
   case 34: /* TypeAnnotation: %empty  */
 #line 82 "parser.ypp"
-                                                                     { yyval = make_shared<TypeAnnotation>(); }
+                                                                     { yyval = new TypeAnnotation(); }
 #line 1408 "parser.tab.cpp"
     break;
 
   case 35: /* TypeAnnotation: CONST  */
 #line 83 "parser.ypp"
-                                                                     { yyval = make_shared<TypeAnnotation>(yyvsp[0]); }
+                                                                     { yyval = new TypeAnnotation(yyvsp[0]); }
 #line 1414 "parser.tab.cpp"
     break;
 
   case 36: /* Exp: LPAREN Exp RPAREN  */
 #line 84 "parser.ypp"
-                                                                     { yyval = make_shared<Exp>(yyvsp[-1]); }
+                                                                     { yyval = new Exp(yyvsp[-1]); }
 #line 1420 "parser.tab.cpp"
     break;
 
   case 37: /* Exp: Exp BINADD Exp  */
 #line 85 "parser.ypp"
-                                                                     { yyval = make_shared<Exp>(yyvsp[-2], OP_TYPE::BINADD, yyvsp[-1]); }
+                                                                     { yyval = new Exp(yyvsp[-2], OP_TYPE::BINADD, yyvsp[-1]); }
 #line 1426 "parser.tab.cpp"
     break;
 
   case 38: /* Exp: Exp BINMUL Exp  */
 #line 86 "parser.ypp"
-                                                                     { yyval = make_shared<Exp>(yyvsp[-2], OP_TYPE::BINMUL, yyvsp[-1]); }
+                                                                     { yyval = new Exp(yyvsp[-2], OP_TYPE::BINMUL, yyvsp[-1]); }
 #line 1432 "parser.tab.cpp"
     break;
 
   case 39: /* Exp: ID  */
 #line 87 "parser.ypp"
-                                                                     { yyval = make_shared<Exp>(yyvsp[0]); }
+                                                                     { yyval = new Exp(yyvsp[0]); }
 #line 1438 "parser.tab.cpp"
     break;
 
   case 40: /* Exp: Call  */
 #line 88 "parser.ypp"
-                                                                     { yyval = make_shared<Exp>(make_shared<Call>(yyvsp[0])); }
+                                                                     { yyval = new Exp(yyvsp[0]); }
 #line 1444 "parser.tab.cpp"
     break;
 
   case 41: /* Exp: NUM  */
 #line 89 "parser.ypp"
-                                                                     { yyval = make_shared<Exp>(yyvsp[0], "NUM"); }
+                                                                     { yyval = new Exp(yyvsp[0], "NUM"); }
 #line 1450 "parser.tab.cpp"
     break;
 
   case 42: /* Exp: NUM B  */
 #line 90 "parser.ypp"
-                                                                     { yyval = make_shared<Exp>(yyvsp[-1], "BYTE"); }
+                                                                     { yyval = new Exp(yyvsp[-1], "BYTE"); }
 #line 1456 "parser.tab.cpp"
     break;
 
   case 43: /* Exp: STRING  */
 #line 91 "parser.ypp"
-                                                                     { yyval = make_shared<Exp>(yyvsp[0], "STRING"); }
+                                                                     { yyval = new Exp(yyvsp[0], "STRING"); }
 #line 1462 "parser.tab.cpp"
     break;
 
   case 44: /* Exp: TRUE  */
 #line 92 "parser.ypp"
-                                                                     { yyval = make_shared<Exp>(yyvsp[0], "BOOL"); }
+                                                                     { yyval = new Exp(yyvsp[0], "BOOL"); }
 #line 1468 "parser.tab.cpp"
     break;
 
   case 45: /* Exp: FALSE  */
 #line 93 "parser.ypp"
-                                                                     { yyval = make_shared<Exp>(yyvsp[0], "BOOL"); }
+                                                                     { yyval = new Exp(yyvsp[0], "BOOL"); }
 #line 1474 "parser.tab.cpp"
     break;
 
   case 46: /* Exp: NOT Exp  */
 #line 94 "parser.ypp"
-                                                                     { yyval = make_shared<Exp>(true, make_shared<Exp>(yyvsp[0])); }
+                                                                     { yyval = new Exp(true, yyvsp[0]); }
 #line 1480 "parser.tab.cpp"
     break;
 
   case 47: /* Exp: Exp AND Exp  */
 #line 95 "parser.ypp"
-                                                                     { yyval = make_shared<Exp>(dynamic_cast<shared_ptr<Exp>>(yyvsp[-2]), OP_TYPE::AND, dynamic_cast<shared_ptr<Exp>>(yyvsp[-1])); }
+                                                                     { yyval = new Exp(dynamic_cast<Exp*>yyvsp[-2], OP_TYPE::AND, dynamic_cast<Exp*>yyvsp[-1]); }
 #line 1486 "parser.tab.cpp"
     break;
 
   case 48: /* Exp: Exp OR Exp  */
 #line 96 "parser.ypp"
-                                                                     { yyval = make_shared<Exp>(yyvsp[-2], OP_TYPE::OR, yyvsp[-1]); }
+                                                                     { yyval = new Exp(dynamic_cast<Exp*>yyvsp[-2], OP_TYPE::OR, dynamic_cast<Exp*>yyvsp[-1]); }
 #line 1492 "parser.tab.cpp"
     break;
 
   case 49: /* Exp: Exp RELATION Exp  */
 #line 97 "parser.ypp"
-                                                                     { yyval = make_shared<Exp>(yyvsp[-2], OP_TYPE::RELATION, yyvsp[-1]); }
+                                                                     { yyval = new Exp(dynamic_cast<Exp*>yyvsp[-2], OP_TYPE::RELATION, dynamic_cast<Exp*>yyvsp[-1]); }
 #line 1498 "parser.tab.cpp"
     break;
 
   case 50: /* Exp: Exp EQUALITY Exp  */
 #line 98 "parser.ypp"
-                                                                     { yyval = make_shared<Exp>(yyvsp[-2], OP_TYPE::EQUALITY, yyvsp[-1]); }
+                                                                     { yyval = new Exp(dynamic_cast<Exp*>yyvsp[-2], OP_TYPE::EQUALITY, dynamic_cast<Exp*>yyvsp[-1]); }
 #line 1504 "parser.tab.cpp"
     break;
 
   case 51: /* Exp: LPAREN Type RPAREN Exp  */
 #line 99 "parser.ypp"
-                                                                     { yyval = make_shared<Exp>(make_shared<Type>(yyvsp[-2]), make_shared<Exp>(yyvsp[0])); }
+                                                                     { yyval = new Exp(dynamic_cast<Type*>(yyvsp[-2]), dynamic_cast<Exp*>(yyvsp[0])); }
 #line 1510 "parser.tab.cpp"
     break;
 
