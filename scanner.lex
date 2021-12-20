@@ -1,5 +1,6 @@
 %{
     #include <stdio.h>
+    #include "SemanticAnalyzer.h"
     #include "hw3_output.hpp"
     #include "parser.tab.hpp"
 %}
@@ -11,39 +12,39 @@ letter ([a-zA-Z])
 ws     ([\t\n ])
 %%
 
-void                          return VOID;
-int                           return INT;
-byte                          return BYTE;
-b                             return B;
-bool                          return BOOL;
-const                         return CONST;
-and                           return AND;
-or                            return OR;
-not                           return NOT;
-true                          return TRUE;
-false                         return FALSE;
-return                        return RETURN;
-if                            return IF;
-else                          return ELSE;
-while                         return WHILE;
-break                         return BREAK;
-continue                      return CONTINUE;
-;                             return SC;
-,                             return COMMA;
-\(                            return LPAREN;
-\)                            return RPAREN;
-\{                            return LBRACE;
-\}                            return RBRACE;
-=                             return ASSIGN;
-==|!=                         return EQUALITY;
-\<|>|<=|>=                    return RELATION;
-\+|-                          return BINADD;
-\*|\/                         return BINMUL;
-{letter}+({letter}|{digit})*  return ID;
-([1-9]{digit}*)|0             return NUM;
-\"([^\n\r\"\\]|\\[rnt"\\])+\" return STRING;
+void                          yylval = new BaseType(yytext); return VOID; 
+int                           yylval = new BaseType(yytext); return INT;
+byte                          yylval = new BaseType(yytext); return BYTE;
+b                             yylval = new BaseType(yytext); return B;
+bool                          yylval = new BaseType(yytext); return BOOL;
+const                         yylval = new BaseType(yytext); return CONST;
+and                           yylval = new BaseType(yytext); return AND;
+or                            yylval = new BaseType(yytext); return OR;
+not                           yylval = new BaseType(yytext); return NOT;
+true                          yylval = new BaseType(yytext); return TRUE;
+false                         yylval = new BaseType(yytext); return FALSE;
+return                        yylval = new BaseType(yytext); return RETURN;
+if                            yylval = new BaseType(yytext); return IF;
+else                          yylval = new BaseType(yytext); return ELSE;
+while                         yylval = new BaseType(yytext); return WHILE;
+break                         yylval = new BaseType(yytext); return BREAK;
+continue                      yylval = new BaseType(yytext); return CONTINUE;
+;                             yylval = new BaseType(yytext); return SC;
+,                             yylval = new BaseType(yytext); return COMMA;
+\(                            yylval = new BaseType(yytext); return LPAREN;
+\)                            yylval = new BaseType(yytext); return RPAREN;
+\{                            yylval = new BaseType(yytext); return LBRACE;
+\}                            yylval = new BaseType(yytext); return RBRACE;
+=                             yylval = new BaseType(yytext); return ASSIGN;
+==|!=                         yylval = new BaseType(yytext); return EQUALITY;
+\<|>|<=|>=                    yylval = new BaseType(yytext); return RELATION;
+\+|-                          yylval = new BaseType(yytext); return BINADD;
+\*|\/                         yylval = new BaseType(yytext); return BINMUL;
+{letter}+({letter}|{digit})*  yylval = new BaseType(yytext); return ID;
+([1-9]{digit}*)|0             yylval = new BaseType(yytext); return NUM;
+\"([^\n\r\"\\]|\\[rnt"\\])+\" yylval = new BaseType(yytext); return STRING;
 {ws}                          {};
-(\r)|(\r\n) {};
+(\r)|(\r\n)                   {};
 \/\/[^\r\n]*[ \r|\n|\r\n]?    {};
 .                             { output::errorLex(yylineno); };
 %%

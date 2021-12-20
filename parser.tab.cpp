@@ -1249,7 +1249,7 @@ yyreduce:
 
   case 7: /* RetType: VOID  */
 #line 52 "parser.ypp"
-                                                                     { yyval = new RetType(yyvsp[0]); }
+                                                                     { yyval = new RetType(yyvsp[0]); std::cout << "after rettype\n"; }
 #line 1254 "parser.tab.cpp"
     break;
 
@@ -1527,7 +1527,7 @@ yyreduce:
 
   case 53: /* M_NEW_SCOPE: %empty  */
 #line 101 "parser.ypp"
-                                                                     { create_new_scope(); }
+                                                                     { std::cout << "renen"; create_new_scope(); }
 #line 1532 "parser.tab.cpp"
     break;
 

@@ -7,6 +7,7 @@
 #include <vector>
 #include <string>
 #include "hw3_output.hpp"
+#include <iostream>
 
 using std::vector;
 using std::string;
@@ -36,6 +37,8 @@ public:
     BaseType() { token_value = ""; }
     string token_value;
     explicit BaseType(const string& str) {
+        std::cout << "enter ctor\n";
+        std::cout << str;
         if (str == "void")
             token_value = "VOID";
         else if (str == "bool")
@@ -89,7 +92,7 @@ public:
 class RetType : public BaseType {
 public:
     // TYPE
-    explicit RetType(BaseType* type) : BaseType(*type) {}
+    explicit RetType(BaseType* type) : BaseType(type->token_value) {std::cout << "after rettype\n";}
 };
 
 class TypeAnnotation : public BaseType {

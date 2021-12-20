@@ -573,10 +573,11 @@ char *yytext;
 #line 1 "scanner.lex"
 #line 2 "scanner.lex"
     #include <stdio.h>
+    #include "SemanticAnalyzer.h"
     #include "hw3_output.hpp"
     #include "parser.tab.hpp"
-#line 578 "lex.yy.c"
 #line 579 "lex.yy.c"
+#line 580 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -793,10 +794,10 @@ YY_DECL
 		}
 
 	{
-#line 12 "scanner.lex"
+#line 13 "scanner.lex"
 
 
-#line 799 "lex.yy.c"
+#line 800 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -865,188 +866,188 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 14 "scanner.lex"
-return VOID;
+#line 15 "scanner.lex"
+yylval = new BaseType(yytext); return VOID; 
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 15 "scanner.lex"
-return INT;
+#line 16 "scanner.lex"
+yylval = new BaseType(yytext); return INT;
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 16 "scanner.lex"
-return BYTE;
+#line 17 "scanner.lex"
+yylval = new BaseType(yytext); return BYTE;
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 17 "scanner.lex"
-return B;
+#line 18 "scanner.lex"
+yylval = new BaseType(yytext); return B;
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 18 "scanner.lex"
-return BOOL;
+#line 19 "scanner.lex"
+yylval = new BaseType(yytext); return BOOL;
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 19 "scanner.lex"
-return CONST;
+#line 20 "scanner.lex"
+yylval = new BaseType(yytext); return CONST;
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 20 "scanner.lex"
-return AND;
+#line 21 "scanner.lex"
+yylval = new BaseType(yytext); return AND;
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 21 "scanner.lex"
-return OR;
+#line 22 "scanner.lex"
+yylval = new BaseType(yytext); return OR;
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 22 "scanner.lex"
-return NOT;
+#line 23 "scanner.lex"
+yylval = new BaseType(yytext); return NOT;
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 23 "scanner.lex"
-return TRUE;
+#line 24 "scanner.lex"
+yylval = new BaseType(yytext); return TRUE;
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 24 "scanner.lex"
-return FALSE;
+#line 25 "scanner.lex"
+yylval = new BaseType(yytext); return FALSE;
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 25 "scanner.lex"
-return RETURN;
+#line 26 "scanner.lex"
+yylval = new BaseType(yytext); return RETURN;
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 26 "scanner.lex"
-return IF;
+#line 27 "scanner.lex"
+yylval = new BaseType(yytext); return IF;
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 27 "scanner.lex"
-return ELSE;
+#line 28 "scanner.lex"
+yylval = new BaseType(yytext); return ELSE;
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 28 "scanner.lex"
-return WHILE;
+#line 29 "scanner.lex"
+yylval = new BaseType(yytext); return WHILE;
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 29 "scanner.lex"
-return BREAK;
+#line 30 "scanner.lex"
+yylval = new BaseType(yytext); return BREAK;
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 30 "scanner.lex"
-return CONTINUE;
+#line 31 "scanner.lex"
+yylval = new BaseType(yytext); return CONTINUE;
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 31 "scanner.lex"
-return SC;
+#line 32 "scanner.lex"
+yylval = new BaseType(yytext); return SC;
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 32 "scanner.lex"
-return COMMA;
+#line 33 "scanner.lex"
+yylval = new BaseType(yytext); return COMMA;
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 33 "scanner.lex"
-return LPAREN;
+#line 34 "scanner.lex"
+yylval = new BaseType(yytext); return LPAREN;
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 34 "scanner.lex"
-return RPAREN;
+#line 35 "scanner.lex"
+yylval = new BaseType(yytext); return RPAREN;
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 35 "scanner.lex"
-return LBRACE;
+#line 36 "scanner.lex"
+yylval = new BaseType(yytext); return LBRACE;
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 36 "scanner.lex"
-return RBRACE;
+#line 37 "scanner.lex"
+yylval = new BaseType(yytext); return RBRACE;
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 37 "scanner.lex"
-return ASSIGN;
+#line 38 "scanner.lex"
+yylval = new BaseType(yytext); return ASSIGN;
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 38 "scanner.lex"
-return EQUALITY;
+#line 39 "scanner.lex"
+yylval = new BaseType(yytext); return EQUALITY;
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 39 "scanner.lex"
-return RELATION;
+#line 40 "scanner.lex"
+yylval = new BaseType(yytext); return RELATION;
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 40 "scanner.lex"
-return BINADD;
+#line 41 "scanner.lex"
+yylval = new BaseType(yytext); return BINADD;
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 41 "scanner.lex"
-return BINMUL;
+#line 42 "scanner.lex"
+yylval = new BaseType(yytext); return BINMUL;
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 42 "scanner.lex"
-return ID;
+#line 43 "scanner.lex"
+yylval = new BaseType(yytext); return ID;
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 43 "scanner.lex"
-return NUM;
+#line 44 "scanner.lex"
+yylval = new BaseType(yytext); return NUM;
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 44 "scanner.lex"
-return STRING;
+#line 45 "scanner.lex"
+yylval = new BaseType(yytext); return STRING;
 	YY_BREAK
 case 32:
 /* rule 32 can match eol */
 YY_RULE_SETUP
-#line 45 "scanner.lex"
+#line 46 "scanner.lex"
 {};
 	YY_BREAK
 case 33:
 /* rule 33 can match eol */
 YY_RULE_SETUP
-#line 46 "scanner.lex"
+#line 47 "scanner.lex"
 {};
 	YY_BREAK
 case 34:
 /* rule 34 can match eol */
 YY_RULE_SETUP
-#line 47 "scanner.lex"
+#line 48 "scanner.lex"
 {};
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 48 "scanner.lex"
+#line 49 "scanner.lex"
 { output::errorLex(yylineno); };
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 49 "scanner.lex"
+#line 50 "scanner.lex"
 ECHO;
 	YY_BREAK
-#line 1049 "lex.yy.c"
+#line 1050 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2063,6 +2064,6 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 49 "scanner.lex"
+#line 50 "scanner.lex"
 
 

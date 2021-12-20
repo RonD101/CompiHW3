@@ -49,7 +49,7 @@ FuncDecl : RetType ID M_NEW_SCOPE LPAREN Formals RPAREN LBRACE Statements RBRACE
     destroy_current_scope();
 };
 RetType : Type                                                       { $$ = new RetType(dynamic_cast<Type*>($1)); };
-RetType : VOID                                                       { $$ = new RetType($1); };
+RetType : VOID                                                       { $$ = new RetType($1); std::cout << "after rettype\n"; };
 Formals :                                                            { $$ = new Formals(); };
 Formals : FormalsList                                                { $$ = new Formals(dynamic_cast<FormalsList*>($1)); };
 FormalsList : FormalDecl                                             { $$ = new FormalsList(dynamic_cast<FormalDecl*>($1)); };
@@ -98,7 +98,7 @@ Exp : Exp RELATION Exp                                               { $$ = new 
 Exp : Exp EQUALITY Exp                                               { $$ = new Exp(dynamic_cast<Exp*>($1), OP_TYPE::EQUALITY, dynamic_cast<Exp*>($2)); };
 Exp : LPAREN Type RPAREN Exp                                         { $$ = new Exp(dynamic_cast<Type*>($2), dynamic_cast<Exp*>($4)); };
 M_WHILE_ENTER :                                                      { loop_entered(); }
-M_NEW_SCOPE :                                                        { create_new_scope(); }
+M_NEW_SCOPE :                                                        { std::cout << "renen"; create_new_scope(); }
 M_DES_SCOPE :                                                        { destroy_current_scope(); }
 %%
 
