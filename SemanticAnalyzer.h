@@ -15,6 +15,7 @@ using std::string;
 void loop_entered();
 void loop_exited();
 void create_new_scope();
+void create_global_scope();
 void destroy_current_scope();
 void check_for_main_correctness();
 
@@ -37,8 +38,6 @@ public:
     BaseType() { token_value = ""; }
     string token_value;
     explicit BaseType(const string& str) {
-        std::cout << "enter ctor\n";
-        std::cout << str;
         if (str == "void")
             token_value = "VOID";
         else if (str == "bool")
@@ -74,7 +73,7 @@ public:
 
 class Type : public BaseType {
 public:
-    explicit Type(BaseType* type) : BaseType(*type) {}
+    explicit Type(BaseType* type) : BaseType(type->token_value) {}
 };
 
 class Program : public BaseType {
@@ -92,7 +91,7 @@ public:
 class RetType : public BaseType {
 public:
     // TYPE
-    explicit RetType(BaseType* type) : BaseType(type->token_value) {std::cout << "after rettype\n";}
+    explicit RetType(BaseType* type) : BaseType(type->token_value) {}
 };
 
 class TypeAnnotation : public BaseType {

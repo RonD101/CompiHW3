@@ -26,7 +26,21 @@ void loop_exited() {
 void create_new_scope() {
     SymbolTable new_table;
     tables_stack.push_back(new_table);
-    offset_stack.push_back(offset_stack.back());
+    if (offset_stack.empty())
+        offset_stack.push_back(0);
+    else 
+        offset_stack.push_back(offset_stack.back());
+}
+
+/* ************************************************ */
+void create_global_scope() {
+    SymbolTable new_table;
+    SymbolEntry print_func("print", {"VOID", "STRING"}, 0, true, false, { false });
+    SymbolEntry printi_func("printi", {"VOID", "INT"}, 0, true, false, { false });
+    new_table.rows.push_back(print_func);
+    new_table.rows.push_back(printi_func);
+    tables_stack.push_back(new_table);
+    offset_stack.push_back(0);
 }
 
 /* ************************************************ */
@@ -37,7 +51,7 @@ void destroy_current_scope() {
         if (!row.is_func) 
             printID(row.name, row.offset, row.types[0]);
         else {
-            const string& return_type = row.types[0];
+            const string return_type = row.types[0];
             row.types.erase(row.types.begin());
             printID(row.name, row.offset, makeFunctionType(return_type, row.types));
         }
@@ -81,21 +95,15 @@ static bool is_sym_dec(const string& sym, bool is_search_for_func) {
 
 /* Program : Funcs */
 Program::Program() : BaseType("Program") {
-    SymbolTable new_table;
-    SymbolEntry print_func("print", {"VOID", "STRING"}, 0, true, false, { false });
-    SymbolEntry printi_func("printi", {"VOID", "INT"}, 0, true, false, { false });
-    new_table.rows.push_back(print_func);
-    new_table.rows.push_back(printi_func);
-    tables_stack.push_back(new_table);
-    offset_stack.push_back(0);
+   
 }
 
 /* Funcs : Epsilon */
 Funcs::Funcs() {
-    if (strlen(yytext) == 0) {
+    /*if (strlen(yytext) == 0) {
         errorSyn(yylineno);
         exit(0);
-    }
+    }*/
 }
 
 /* FuncDecl : RetType ID LPAREN Formals RPAREN LBRACE Statements RBRACE */
@@ -122,9 +130,13 @@ FuncDecl::FuncDecl(RetType* return_type, BaseType* func_name, Formals* params) {
         param_types.push_back(param.param_type);
         const_indicator.push_back(param.is_param_const);
     }
-
     SymbolEntry new_func(func_name->token_value, param_types, 0, true, false, const_indicator);
-    tables_stack.back().rows.push_back(new_func);
+    tables_stack.front().rows.push_back(new_func);
+    for (const auto& param : params->formals) {
+        int new_offset = offset_stack.back() + 1;
+        vector<string> varType = { param.param_type };
+        tables_stack.front().rows.push_back(SymbolEntry(param.token_value, varType, new_offset, false, param.is_param_const));
+    }
     current_function_name = func_name->token_value;
 }
 

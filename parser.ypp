@@ -40,16 +40,14 @@
 
 %%
 
-Program : Funcs                                                      { $$ = new Program(); check_for_main_correctness(); };
+Program : M_ENTER_GLOBAL Funcs                                       { $$ = new Program(); check_for_main_correctness(); };
 Funcs :                                                              { $$ = new Funcs(); };
 Funcs : FuncDecl Funcs                                               { $$ = new Funcs(); };
-FuncDecl : RetType ID M_NEW_SCOPE LPAREN Formals RPAREN LBRACE Statements RBRACE
-{ 
+FuncDecl : RetType ID M_NEW_SCOPE LPAREN Formals RPAREN LBRACE { 
     $$ =  new FuncDecl(dynamic_cast<RetType*>($1), $2, dynamic_cast<Formals*>($5));
-    destroy_current_scope();
-};
+} Statements RBRACE { destroy_current_scope(); };
 RetType : Type                                                       { $$ = new RetType(dynamic_cast<Type*>($1)); };
-RetType : VOID                                                       { $$ = new RetType($1); std::cout << "after rettype\n"; };
+RetType : VOID                                                       { $$ = new RetType($1); };
 Formals :                                                            { $$ = new Formals(); };
 Formals : FormalsList                                                { $$ = new Formals(dynamic_cast<FormalsList*>($1)); };
 FormalsList : FormalDecl                                             { $$ = new FormalsList(dynamic_cast<FormalDecl*>($1)); };
@@ -64,8 +62,8 @@ Statement : ID ASSIGN Exp SC                                         { $$ = new 
 Statement : Call SC                                                  { $$ = new Statement(dynamic_cast<Call*>($1)); };
 Statement : RETURN SC                                                { $$ = new Statement(); };
 Statement : RETURN Exp SC                                            { $$ = new Statement(dynamic_cast<Exp*>($2)); };
-Statement : %prec IF LPAREN Exp RPAREN M_NEW_SCOPE Statement         { $$ = new Statement("", dynamic_cast<Exp*>($3)); destroy_current_scope(); };
-Statement : IF LPAREN Exp RPAREN M_NEW_SCOPE Statement M_DES_SCOPE ELSE M_NEW_SCOPE Statement
+Statement : IF LPAREN Exp RPAREN M_NEW_SCOPE Statement               { $$ = new Statement("", dynamic_cast<Exp*>($3)); destroy_current_scope(); };
+Statement : %prec IF LPAREN Exp RPAREN M_NEW_SCOPE Statement M_DES_SCOPE ELSE M_NEW_SCOPE Statement
 { 
     $$ = new Statement("", dynamic_cast<Exp*>($3)); destroy_current_scope(); 
 };
@@ -86,7 +84,7 @@ Exp : Exp BINADD Exp                                                 { $$ = new 
 Exp : Exp BINMUL Exp                                                 { $$ = new Exp(dynamic_cast<Exp*>($1), OP_TYPE::BINMUL, dynamic_cast<Exp*>($2)); };
 Exp : ID                                                             { $$ = new Exp($1); };
 Exp : Call                                                           { $$ = new Exp($1); };
-Exp : NUM                                                            { $$ = new Exp($1, "NUM"); };
+Exp : NUM                                                            { $$ = new Exp($1, "INT"); };
 Exp : NUM B                                                          { $$ = new Exp($1, "BYTE"); };
 Exp : STRING                                                         { $$ = new Exp($1, "STRING"); };
 Exp : TRUE                                                           { $$ = new Exp($1, "BOOL"); };
@@ -94,12 +92,14 @@ Exp : FALSE                                                          { $$ = new 
 Exp : NOT Exp                                                        { $$ = new Exp(true, dynamic_cast<Exp*>($2)); };
 Exp : Exp AND Exp                                                    { $$ = new Exp(dynamic_cast<Exp*>($1), OP_TYPE::AND, dynamic_cast<Exp*>($2)); };
 Exp : Exp OR Exp                                                     { $$ = new Exp(dynamic_cast<Exp*>($1), OP_TYPE::OR, dynamic_cast<Exp*>($2)); };
-Exp : Exp RELATION Exp                                               { $$ = new Exp(dynamic_cast<Exp*>($1), OP_TYPE::RELATION, dynamic_cast<Exp*>($2)); };
-Exp : Exp EQUALITY Exp                                               { $$ = new Exp(dynamic_cast<Exp*>($1), OP_TYPE::EQUALITY, dynamic_cast<Exp*>($2)); };
+Exp : Exp RELATION Exp                                               { $$ = new Exp(dynamic_cast<Exp*>($1), OP_TYPE::RELATION, dynamic_cast<Exp*>($3)); };
+Exp : Exp EQUALITY Exp                                               { $$ = new Exp(dynamic_cast<Exp*>($1), OP_TYPE::EQUALITY, dynamic_cast<Exp*>($3)); };
 Exp : LPAREN Type RPAREN Exp                                         { $$ = new Exp(dynamic_cast<Type*>($2), dynamic_cast<Exp*>($4)); };
+M_ENTER_GLOBAL :                                                     { create_global_scope(); }
 M_WHILE_ENTER :                                                      { loop_entered(); }
-M_NEW_SCOPE :                                                        { std::cout << "renen"; create_new_scope(); }
+M_NEW_SCOPE :                                                        { create_new_scope(); }
 M_DES_SCOPE :                                                        { destroy_current_scope(); }
+                                                      
 %%
 
 int main() {
