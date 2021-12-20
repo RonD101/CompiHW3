@@ -99,7 +99,7 @@ Funcs::Funcs() {
 }
 
 /* FuncDecl : RetType ID LPAREN Formals RPAREN LBRACE Statements RBRACE */
-FuncDecl::FuncDecl(const shared_ptr<RetType>& return_type, const shared_ptr<BaseType>& func_name, const shared_ptr<Formals>& params) {
+FuncDecl::FuncDecl(const shared_ptr<RetType>& return_type, BaseType* func_name, const shared_ptr<Formals>& params) {
     // Redecleration of function.
     if (is_sym_dec(func_name->token_value, true)) {
         errorDef(yylineno, func_name->token_value);
@@ -195,7 +195,7 @@ Statement::Statement(const shared_ptr<Exp>& exp) {
 }
 
 /* Statement : ID ASSIGN Exp SC */
-Statement::Statement(const shared_ptr<BaseType>& id, const shared_ptr<Exp>& exp) {
+Statement::Statement(BaseType* id, const shared_ptr<Exp>& exp) {
     // Assignment to undeclared var.
     if (!is_sym_dec(id->token_value, false)) {
         errorUndef(yylineno, id->token_value);
@@ -222,7 +222,7 @@ Statement::Statement(const shared_ptr<BaseType>& id, const shared_ptr<Exp>& exp)
 }
 
 /* Statement : TypeAnnotation Type ID ASSIGN Exp SC */
-Statement::Statement(const shared_ptr<Type>& type, const shared_ptr<BaseType>& id, const shared_ptr<Exp>& exp, const shared_ptr<TypeAnnotation>& const_anno) {
+Statement::Statement(const shared_ptr<Type>& type, BaseType* id, const shared_ptr<Exp>& exp, const shared_ptr<TypeAnnotation>& const_anno) {
     // Symbol redefinition.
     if (is_sym_dec(id->token_value, false)) {
         errorDef(yylineno, id->token_value);
@@ -241,7 +241,7 @@ Statement::Statement(const shared_ptr<Type>& type, const shared_ptr<BaseType>& i
 }
 
 /* Statement : TypeAnnotation Type ID SC */
-Statement::Statement(const shared_ptr<Type>& type, const shared_ptr<BaseType>& id, const shared_ptr<TypeAnnotation>& const_anno) {
+Statement::Statement(const shared_ptr<Type>& type, BaseType* id, const shared_ptr<TypeAnnotation>& const_anno) {
     // Symbol redefinition.
     if (is_sym_dec(id->token_value, false)) {
         errorDef(yylineno, id->token_value);
@@ -258,7 +258,7 @@ Statement::Statement(const shared_ptr<Type>& type, const shared_ptr<BaseType>& i
 }
 
 /* Call : ID LPAREN ExpList RPAREN */
-Call::Call(const shared_ptr<BaseType>& id, const shared_ptr<ExpList>& param_list) {
+Call::Call(BaseType* id, const shared_ptr<ExpList>& param_list) {
     for (auto& table : tables_stack) {
         for (auto& row : table.rows) {
             if (row.name != id->token_value)
@@ -275,9 +275,9 @@ Call::Call(const shared_ptr<BaseType>& id, const shared_ptr<ExpList>& param_list
                 exit(0);
             }
             for (int i = 0; i < param_list->list.size(); i++) {
-                if (param_list->list[i].type == row.types[i + 1])
+                if (param_list->list[i]->type == row.types[i + 1])
                     continue;
-                if (param_list->list[i].type == "BYTE" && row.types[i] == "INT")
+                if (param_list->list[i]->type == "BYTE" && row.types[i] == "INT")
                     continue;
                 row.types.erase(row.types.begin());
                 errorPrototypeMismatch(yylineno, id->token_value, row.types);
@@ -291,7 +291,7 @@ Call::Call(const shared_ptr<BaseType>& id, const shared_ptr<ExpList>& param_list
 }
 
 /* Call : ID LPAREN RPAREN */
-Call::Call(const shared_ptr<BaseType>& id) {
+Call::Call(BaseType* id) {
     for (auto& table : tables_stack) {
         for (auto& row : table.rows) {
             if (row.name != id->token_value)
@@ -321,7 +321,7 @@ Exp::Exp(const shared_ptr<Call>& call) {
 }
 
 /* Exp : ID */
-Exp::Exp(const shared_ptr<BaseType>& term) {
+Exp::Exp(BaseType* term) {
     if (!is_sym_dec(term->token_value, false)) {
         errorUndef(yylineno, term->token_value);
         exit(0);
@@ -350,7 +350,7 @@ Exp::Exp(bool not_mark, const shared_ptr<Exp>& exp) {
 }
 
 /*  Exp : NUM, NUM B, STRING, TRUE, FALSE */
-Exp::Exp(const shared_ptr<BaseType>& term, const string& rhs) : BaseType(term.token_value) {
+Exp::Exp(BaseType* term, const string& rhs) : BaseType(term->token_value) {
     if (rhs == "BYTE") {
         if (stoi(term->token_value) > 255) {
             errorByteTooLarge(yylineno, term->token_value);

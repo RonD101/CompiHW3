@@ -40,63 +40,63 @@
 
 %%
 
-Program : Funcs                                                      { $$ = Program(); check_for_main_correctness(); };
-Funcs :                                                              { $$ = Funcs(); };
-Funcs : FuncDecl Funcs                                               { $$ = Funcs(); };
+Program : Funcs                                                      { $$ = make_shared<Program>(); check_for_main_correctness(); };
+Funcs :                                                              { $$ =  make_shared<Funcs>(); };
+Funcs : FuncDecl Funcs                                               { $$ =  make_shared<Funcs>(); };
 FuncDecl : RetType ID M_NEW_SCOPE LPAREN Formals RPAREN LBRACE Statements RBRACE
 { 
-    $$ = FuncDecl(RetType($1), $2, Formals($5));
+    $$ =  make_shared<FuncDecl>(make_shared<RetType>($1), $2, make_shared<Formals($5)>);
     destroy_current_scope();
 };
-RetType : Type                                                       { $$ = RetType(Type($1)); };
-RetType : VOID                                                       { $$ = RetType($1); };
-Formals :                                                            { $$ = Formals(); };
-Formals : FormalsList                                                { $$ = Formals(FormalsList($1)); };
-FormalsList : FormalDecl                                             { $$ = FormalsList(FormalDecl($1)); };
-FormalsList : FormalDecl COMMA FormalsList                           { $$ = FormalsList(FormalDecl($1), FormalsList($3)); };
-FormalDecl : TypeAnnotation Type ID                                  { $$ = FormalDecl(Type($2), $3, TypeAnnotation($1)); };
-Statements : Statement                                               { $$ = Statements(Statement($1)); };
-Statements : Statements Statement                                    { $$ = Statements(Statements($1), Statement($2)); };
-Statement : LBRACE M_NEW_SCOPE Statements RBRACE                     { $$ = Statement(Statements($3); destroy_current_scope(); };
-Statement : TypeAnnotation Type ID SC                                { $$ = Statement(Type($2), $3, TypeAnnotation($1)); };
-Statement : TypeAnnotation Type ID ASSIGN Exp SC                     { $$ = Statement(Type($2), $3, Exp($5), TypeAnnotation($1)); };
-Statement : ID ASSIGN Exp SC                                         { $$ = Statement($1, Exp($3)); };
-Statement : Call SC                                                  { $$ = Statement(Call($1)); };
-Statement : RETURN SC                                                { $$ = Statement(); };
-Statement : RETURN Exp SC                                            { $$ = Statement(Exp($2)); };
-Statement : IF LPAREN Exp RPAREN M_NEW_SCOPE Statement               { $$ = Statement("", Exp($3)); destroy_current_scope(); };
+RetType : Type                                                       { $$ = make_shared<RetType>(make_shared<Type>($1)); };
+RetType : VOID                                                       { $$ = make_shared<RetType>($1); };
+Formals :                                                            { $$ = make_shared<Formals>(); };
+Formals : FormalsList                                                { $$ = make_shared<Formals>(make_shared<FormalsList>($1)); };
+FormalsList : FormalDecl                                             { $$ = make_shared<FormalsList>(make_shared<FormalDecl>($1)); };
+FormalsList : FormalDecl COMMA FormalsList                           { $$ = make_shared<FormalsList>(make_shared<FormalDecl>($1), make_shared<FormalsList>($3)); };
+FormalDecl : TypeAnnotation Type ID                                  { $$ = make_shared<FormalDecl>(make_shared<Type>($2), $3, make_shared<TypeAnnotation>($1)); };
+Statements : Statement                                               { $$ = make_shared<Statements>(make_shared<Statement>($1)); };
+Statements : Statements Statement                                    { $$ = make_shared<Statements>(make_shared<Statements>($1), make_shared<Statement>($2)); };
+Statement : LBRACE M_NEW_SCOPE Statements RBRACE                     { $$ = make_shared<Statement>(make_shared<Statements>($3); destroy_current_scope(); };
+Statement : TypeAnnotation Type ID SC                                { $$ = make_shared<Statement>(make_shared<Type>($2), $3, make_shared<TypeAnnotation>($1)); };
+Statement : TypeAnnotation Type ID ASSIGN Exp SC                     { $$ = make_shared<Statement>(make_shared<Type>($2), $3, make_shared<Exp>($5), make_shared<TypeAnnotation>($1)); };
+Statement : ID ASSIGN Exp SC                                         { $$ = make_shared<Statement>($1, make_shared<Exp>($3)); };
+Statement : Call SC                                                  { $$ = make_shared<Statement>(make_shared<Call>($1)); };
+Statement : RETURN SC                                                { $$ = make_shared<Statement>(); };
+Statement : RETURN Exp SC                                            { $$ = make_shared<Statement>(make_shared<Exp>($2)); };
+Statement : IF LPAREN Exp RPAREN M_NEW_SCOPE Statement               { $$ = make_shared<Statement>("", make_shared<Exp>($3)); destroy_current_scope(); };
 Statement : IF LPAREN Exp RPAREN M_NEW_SCOPE Statement M_DES_SCOPE ELSE M_NEW_SCOPE Statement
 { 
-    $$ = Statement("", Exp($3)); destroy_current_scope(); 
+    $$ = make_shared<Statement>("", make_shared<Exp>($3)); destroy_current_scope(); 
 };
-Statement : WHILE LPAREN Exp RPAREN M_WHILE_ENTER Statement          { $$ = Statement("", Exp($3)); destroy_current_scope(); loop_exited(); };
-Statement : BREAK SC                                                 { $$ = Statement(Break_Cont::BREAK); };
-Statement : CONTINUE SC                                              { $$ = Statement(Break_Cont::CONTINUE); };
-Call : ID LPAREN ExpList RPAREN                                      { $$ = Call($1, ExpList($3)); };
-Call : ID LPAREN RPAREN                                              { $$ = Call($1); };
-ExpList : Exp                                                        { $$ = ExpList(Exp($1)); };
-ExpList : Exp COMMA ExpList                                          { $$ = ExpList(Exp($1), ExpList($3)); };
-Type : INT                                                           { $$ = Type($1); };
-Type : BYTE                                                          { $$ = Type($1); };
-Type : BOOL                                                          { $$ = Type($1); };
-TypeAnnotation :                                                     { $$ = TypeAnnotation(); };
-TypeAnnotation : CONST                                               { $$ = TypeAnnotation($1); };
-Exp : LPAREN Exp RPAREN                                              { $$ = Exp($2); };
-Exp : Exp BINADD Exp                                                 { $$ = Exp($1, OP_TYPE::BINADD, $2); };
-Exp : Exp BINMUL Exp                                                 { $$ = Exp($1, OP_TYPE::BINMUL, $2); };
-Exp : ID                                                             { $$ = Exp($1); };
-Exp : Call                                                           { $$ = Exp(Call($1)); };
-Exp : NUM                                                            { $$ = Exp($1, "NUM"); };
-Exp : NUM B                                                          { $$ = Exp($1, "BYTE"); };
-Exp : STRING                                                         { $$ = Exp($1, "STRING"); };
-Exp : TRUE                                                           { $$ = Exp($1, "BOOL"); };
-Exp : FALSE                                                          { $$ = Exp($1, "BOOL"); };
-Exp : NOT Exp                                                        { $$ = Exp(true, $2); };
-Exp : Exp AND Exp                                                    { $$ = Exp($1, OP_TYPE::AND, $2); };
-Exp : Exp OR Exp                                                     { $$ = Exp($1, OP_TYPE::OR, $2); };
-Exp : Exp RELATION Exp                                               { $$ = Exp($1, OP_TYPE::RELATION, $2); };
-Exp : Exp EQUALITY Exp                                               { $$ = Exp($1, OP_TYPE::EQUALITY, $2); };
-Exp : LPAREN Type RPAREN Exp                                         { $$ = Exp(Type($2), Exp($4)); };
+Statement : WHILE LPAREN Exp RPAREN M_WHILE_ENTER Statement          { $$ = make_shared<Statement>("", make_shared<Exp>($3)); destroy_current_scope(); loop_exited(); };
+Statement : BREAK SC                                                 { $$ = make_shared<Statement>(Break_Cont::BREAK); };
+Statement : CONTINUE SC                                              { $$ = make_shared<Statement>(Break_Cont::CONTINUE); };
+Call : ID LPAREN ExpList RPAREN                                      { $$ = make_shared<Call>($1, make_shared<ExpList>($3)); };
+Call : ID LPAREN RPAREN                                              { $$ = make_shared<Call>($1); };
+ExpList : Exp                                                        { $$ = make_shared<ExpList>(make_shared<Exp>($1)); };
+ExpList : Exp COMMA ExpList                                          { $$ = make_shared<ExpList>(make_shared<Exp>($1), make_shared<ExpList>($3)); };
+Type : INT                                                           { $$ = make_shared<Type>($1); };
+Type : BYTE                                                          { $$ = make_shared<Type>($1); };
+Type : BOOL                                                          { $$ = make_shared<Type>($1); };
+TypeAnnotation :                                                     { $$ = make_shared<TypeAnnotation>(); };
+TypeAnnotation : CONST                                               { $$ = make_shared<TypeAnnotation>($1); };
+Exp : LPAREN Exp RPAREN                                              { $$ = make_shared<Exp>($2); };
+Exp : Exp BINADD Exp                                                 { $$ = make_shared<Exp>($1, OP_TYPE::BINADD, $2); };
+Exp : Exp BINMUL Exp                                                 { $$ = make_shared<Exp>($1, OP_TYPE::BINMUL, $2); };
+Exp : ID                                                             { $$ = make_shared<Exp>($1); };
+Exp : Call                                                           { $$ = make_shared<Exp>(make_shared<Call>($1)); };
+Exp : NUM                                                            { $$ = make_shared<Exp>($1, "NUM"); };
+Exp : NUM B                                                          { $$ = make_shared<Exp>($1, "BYTE"); };
+Exp : STRING                                                         { $$ = make_shared<Exp>($1, "STRING"); };
+Exp : TRUE                                                           { $$ = make_shared<Exp>($1, "BOOL"); };
+Exp : FALSE                                                          { $$ = make_shared<Exp>($1, "BOOL"); };
+Exp : NOT Exp                                                        { $$ = make_shared<Exp>(true, make_shared<Exp>($2)); };
+Exp : Exp AND Exp                                                    { $$ = make_shared<Exp>($1, OP_TYPE::AND, $2); };
+Exp : Exp OR Exp                                                     { $$ = make_shared<Exp>($1, OP_TYPE::OR, $2); };
+Exp : Exp RELATION Exp                                               { $$ = make_shared<Exp>($1, OP_TYPE::RELATION, $2); };
+Exp : Exp EQUALITY Exp                                               { $$ = make_shared<Exp>($1, OP_TYPE::EQUALITY, $2); };
+Exp : LPAREN Type RPAREN Exp                                         { $$ = make_shared<Exp>(make_shared<Type>($2), make_shared<Exp>($4)); };
 M_WHILE_ENTER :                                                      { loop_entered(); create_new_scope(); }
 M_NEW_SCOPE :                                                        { create_new_scope(); }
 M_DES_SCOPE :                                                        { destroy_current_scope(); }

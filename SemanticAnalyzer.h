@@ -7,6 +7,7 @@
 #include <vector>
 #include <string>
 #include "hw3_output.hpp"
+#include <memory>
 
 using std::vector;
 using std::string;
@@ -71,7 +72,7 @@ public:
 
 class Type : public BaseType {
 public:
-    explicit Type(const shared_ptr<BaseType>& type) : BaseType(*type) {}
+    explicit Type(BaseType* type) : BaseType(*type) {}
 };
 
 class Program : public BaseType {
@@ -89,7 +90,7 @@ public:
 class RetType : public BaseType {
 public:
     // TYPE
-    explicit RetType(const shared_ptr<BaseType>& type) : BaseType(*type) {}
+    explicit RetType(BaseType* type) : BaseType(*type) {}
 };
 
 class TypeAnnotation : BaseType {
@@ -108,7 +109,7 @@ public:
     string param_type;
     bool is_param_const;
     // Type ID
-    FormalDecl(const shared_ptr<Type>& t, const shared_ptr<BaseType>& id, const shared_ptr<TypeAnnotation>& const_anno) :
+    FormalDecl(const shared_ptr<Type>& t, BaseType* id, const shared_ptr<TypeAnnotation>& const_anno) :
         BaseType(id->token_value), param_type(t->token_value), is_param_const(const_anno->is_const) {}
 };
 
@@ -140,7 +141,7 @@ public:
     vector<string> param_types;
     vector<bool> const_indicator;
     // RetType ID LPAREN Formals RPAREN LBRACE Statements RBRACE
-    FuncDecl(const shared_ptr<RetType>& return_type, const shared_ptr<BaseType>& func_name, const shared_ptr<Formals>& params);
+    FuncDecl(const shared_ptr<RetType>& return_type, BaseType* func_name, const shared_ptr<Formals>& params);
 };
 
 class Call; 
@@ -150,9 +151,9 @@ public:
     string type;
     bool res_type;
     // NUM, NUM B, STRING, TRUE, FALSE
-    Exp(const shared_ptr<BaseType>& term, const shared_ptr<string>& rhs);
+    Exp(BaseType* term, const string& rhs);
     // ID
-    Exp(const shared_ptr<BaseType>& term);
+    Exp(BaseType* term);
     // Call
     explicit Exp(const shared_ptr<Call>& call);
     // NOT
@@ -182,9 +183,9 @@ public:
 class Call : public BaseType {
 public:
     // ID LPAREN ExpList RPAREN
-    Call(const shared_ptr<BaseType>& id, const shared_ptr<ExpList>& list);
+    Call(BaseType* id, const shared_ptr<ExpList>& list);
     // ID LPAREN RPAREN
-    explicit Call(const shared_ptr<BaseType>& id);
+    explicit Call(BaseType* id);
 };
 
 class Statement; 
@@ -202,11 +203,11 @@ public:
     // LBRACE Statements RBRACE
     explicit Statement(const shared_ptr<Statements>& rhs_statements);
     // TypeAnnotation Type ID SC
-    Statement(const shared_ptr<Type>& type, const shared_ptr<BaseType>& id, const shared_ptr<TypeAnnotation>& const_anno);
+    Statement(const shared_ptr<Type>& type, BaseType* id, const shared_ptr<TypeAnnotation>& const_anno);
     // TypeAnnotation Type ID Assign Exp SC
-    Statement(const shared_ptr<Type>& type, const shared_ptr<BaseType>& id, const shared_ptr<Exp>& exp, const shared_ptr<TypeAnnotation>& const_anno);
+    Statement(const shared_ptr<Type>& type, BaseType* id, const shared_ptr<Exp>& exp, const shared_ptr<TypeAnnotation>& const_anno);
     // ID Assign Exp SC
-    Statement(const shared_ptr<BaseType>& id, const shared_ptr<Exp>& exp);
+    Statement(BaseType* id, const shared_ptr<Exp>& exp);
     // Call SC
     explicit Statement(const shared_ptr<Call>& call);
     // Return SC (void)
