@@ -137,6 +137,7 @@ FuncDecl::FuncDecl(RetType* return_type, BaseType* func_name, Formals* params) {
         vector<string> varType = { param.param_type };
         tables_stack.back().rows.push_back(SymbolEntry(param.token_value, varType, new_offset, false, param.is_param_const));
     }
+    offset_stack.back() = 0;
     current_function_name = func_name->token_value;
 }
 

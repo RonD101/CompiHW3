@@ -613,7 +613,7 @@ static const yytype_int16 yypact[] =
      147,   147,   147,   205,   216,   170,   -34,    87,   188,    76,
      -34,    29,   147,   -34,    38,    71,    98,   114,    81,   -34,
      -34,   -34,   -34,   -34,   147,   -34,   104,   -34,   147,   -34,
-     104,   104,   -34,   -34,   176,   -34,   -34,    93,   -34,   -34,
+     104,   104,   -34,   -34,   176,   -34,    93,   -34,   -34,   -34,
      104,   -34
 };
 
@@ -632,7 +632,7 @@ static const yytype_int8 yydefact[] =
        0,     0,     0,     0,     0,     0,    29,     0,    30,    35,
       55,     0,     0,    37,    49,    48,    51,    50,    38,    39,
       54,    55,    19,    28,     0,    16,    35,    17,     0,    52,
-      35,    35,    31,    56,     0,    25,    23,     0,    18,    55,
+      35,    35,    31,    23,     0,    25,     0,    18,    56,    55,
       35,    24
 };
 
@@ -647,7 +647,7 @@ static const yytype_int8 yypgoto[] =
 static const yytype_int8 yydefgoto[] =
 {
        0,     1,     8,     9,    27,    10,    17,    18,    19,    36,
-      37,    48,    77,    11,    39,    78,     2,   100,    14,   107
+      37,    48,    77,    11,    39,    78,     2,   100,    14,   109
 };
 
   /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -667,14 +667,14 @@ static const yytype_int8 yytable[] =
       31,    81,    82,    32,    33,    69,    70,    71,    72,    84,
       85,    86,    87,    88,    89,    34,    95,    35,    72,     4,
        5,     6,    16,     7,    99,    28,    29,    30,    31,    93,
-      12,    32,    33,    70,    71,    72,   109,    40,    41,    25,
+      12,    32,    33,    70,    71,    72,   108,    40,    41,    25,
      104,    79,     0,    34,   102,    35,    43,    44,    45,   -10,
       71,    72,    40,    41,     0,     0,    46,     0,    42,    47,
       76,    43,    44,    45,     0,     0,    40,    41,     0,     0,
        0,    46,     0,     0,    47,    43,    44,    45,     0,     0,
        0,     0,    66,     0,     0,    46,     0,     0,    47,    67,
       68,    69,    70,    71,    72,    92,     0,     0,     0,     0,
-       0,   108,    67,    68,    69,    70,    71,    72,    67,    68,
+       0,   107,    67,    68,    69,    70,    71,    72,    67,    68,
       69,    70,    71,    72,    94,     0,     0,     0,     0,     0,
       67,    68,    69,    70,    71,    72,    67,    68,    69,    70,
       71,    72,     0,     0,     0,     0,    83,    67,    68,    69,
@@ -725,7 +725,7 @@ static const yytype_int8 yystos[] =
       25,    26,    27,    49,    49,    49,    32,    46,    49,    43,
       32,    18,    32,    32,    49,    49,    49,    49,    49,    49,
       32,    32,    15,    32,    16,    30,    52,    15,    21,    49,
-      51,    52,    46,    44,    49,    44,    44,    53,    15,    33,
+      51,    52,    46,    44,    49,    44,    44,    15,    33,    53,
       52,    44
 };
 
@@ -745,7 +745,7 @@ static const yytype_int8 yyr2[] =
 {
        0,     2,     2,     0,     2,     0,    10,     1,     1,     0,
        1,     1,     3,     3,     1,     2,     4,     4,     6,     4,
-       2,     2,     3,     6,     9,     6,     2,     2,     4,     3,
+       2,     2,     3,     5,    10,     6,     2,     2,     4,     3,
        1,     3,     1,     1,     1,     0,     1,     3,     3,     3,
        1,     1,     1,     2,     1,     1,     1,     2,     3,     3,
        3,     3,     4,     0,     0,     0,     0
@@ -1343,16 +1343,16 @@ yyreduce:
 #line 1344 "parser.tab.cpp"
     break;
 
-  case 23: /* Statement: IF LPAREN Exp RPAREN M_NEW_SCOPE Statement  */
+  case 23: /* Statement: LPAREN Exp RPAREN M_NEW_SCOPE Statement  */
 #line 65 "parser.ypp"
-                                                                     { yyval = new Statement("", dynamic_cast<Exp*>(yyvsp[-3])); destroy_current_scope(); }
+                                                                           { yyval = new Statement("", dynamic_cast<Exp*>(yyvsp[-2])); destroy_current_scope(); }
 #line 1350 "parser.tab.cpp"
     break;
 
-  case 24: /* Statement: LPAREN Exp RPAREN M_NEW_SCOPE Statement M_DES_SCOPE ELSE M_NEW_SCOPE Statement  */
+  case 24: /* Statement: IF LPAREN Exp RPAREN M_NEW_SCOPE Statement ELSE M_DES_SCOPE M_NEW_SCOPE Statement  */
 #line 67 "parser.ypp"
 { 
-    std::cout << "after finish else\n"; yyval = new Statement("", dynamic_cast<Exp*>(yyvsp[-6])); destroy_current_scope(); 
+    yyval = new Statement("", dynamic_cast<Exp*>(yyvsp[-7])); destroy_current_scope(); 
 }
 #line 1358 "parser.tab.cpp"
     break;
