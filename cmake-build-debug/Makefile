@@ -142,32 +142,59 @@ hw3/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/hw3.dir/build.make CMakeFiles/hw3.dir/build
 .PHONY : hw3/fast
 
-main.o: main.cpp.o
+SemanticAnalyzer.o: SemanticAnalyzer.cpp.o
 
-.PHONY : main.o
+.PHONY : SemanticAnalyzer.o
 
 # target to build an object file
-main.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/hw3.dir/build.make CMakeFiles/hw3.dir/main.cpp.o
-.PHONY : main.cpp.o
+SemanticAnalyzer.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hw3.dir/build.make CMakeFiles/hw3.dir/SemanticAnalyzer.cpp.o
+.PHONY : SemanticAnalyzer.cpp.o
 
-main.i: main.cpp.i
+SemanticAnalyzer.i: SemanticAnalyzer.cpp.i
 
-.PHONY : main.i
+.PHONY : SemanticAnalyzer.i
 
 # target to preprocess a source file
-main.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/hw3.dir/build.make CMakeFiles/hw3.dir/main.cpp.i
-.PHONY : main.cpp.i
+SemanticAnalyzer.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hw3.dir/build.make CMakeFiles/hw3.dir/SemanticAnalyzer.cpp.i
+.PHONY : SemanticAnalyzer.cpp.i
 
-main.s: main.cpp.s
+SemanticAnalyzer.s: SemanticAnalyzer.cpp.s
 
-.PHONY : main.s
+.PHONY : SemanticAnalyzer.s
 
 # target to generate assembly for a file
-main.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/hw3.dir/build.make CMakeFiles/hw3.dir/main.cpp.s
-.PHONY : main.cpp.s
+SemanticAnalyzer.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hw3.dir/build.make CMakeFiles/hw3.dir/SemanticAnalyzer.cpp.s
+.PHONY : SemanticAnalyzer.cpp.s
+
+hw3_output.o: hw3_output.cpp.o
+
+.PHONY : hw3_output.o
+
+# target to build an object file
+hw3_output.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hw3.dir/build.make CMakeFiles/hw3.dir/hw3_output.cpp.o
+.PHONY : hw3_output.cpp.o
+
+hw3_output.i: hw3_output.cpp.i
+
+.PHONY : hw3_output.i
+
+# target to preprocess a source file
+hw3_output.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hw3.dir/build.make CMakeFiles/hw3.dir/hw3_output.cpp.i
+.PHONY : hw3_output.cpp.i
+
+hw3_output.s: hw3_output.cpp.s
+
+.PHONY : hw3_output.s
+
+# target to generate assembly for a file
+hw3_output.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/hw3.dir/build.make CMakeFiles/hw3.dir/hw3_output.cpp.s
+.PHONY : hw3_output.cpp.s
 
 # Help Target
 help:
@@ -178,9 +205,12 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... hw3"
-	@echo "... main.o"
-	@echo "... main.i"
-	@echo "... main.s"
+	@echo "... SemanticAnalyzer.o"
+	@echo "... SemanticAnalyzer.i"
+	@echo "... SemanticAnalyzer.s"
+	@echo "... hw3_output.o"
+	@echo "... hw3_output.i"
+	@echo "... hw3_output.s"
 .PHONY : help
 
 
