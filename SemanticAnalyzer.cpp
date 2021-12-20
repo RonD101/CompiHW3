@@ -275,9 +275,9 @@ Call::Call(const shared_ptr<BaseType>& id, const shared_ptr<ExpList>& param_list
                 exit(0);
             }
             for (int i = 0; i < param_list->list.size(); i++) {
-                if (param_list->list[i].type == row.types[i + 1])
+                if (param_list->list[i]->type == row.types[i + 1])
                     continue;
-                if (param_list->list[i].type == "BYTE" && row.types[i] == "INT")
+                if (param_list->list[i]->type == "BYTE" && row.types[i] == "INT")
                     continue;
                 row.types.erase(row.types.begin());
                 errorPrototypeMismatch(yylineno, id->token_value, row.types);
@@ -350,7 +350,7 @@ Exp::Exp(bool not_mark, const shared_ptr<Exp>& exp) {
 }
 
 /*  Exp : NUM, NUM B, STRING, TRUE, FALSE */
-Exp::Exp(const shared_ptr<BaseType>& term, const string& rhs) : BaseType(term.token_value) {
+Exp::Exp(const shared_ptr<BaseType>& term, const string& rhs) : BaseType(term->token_value) {
     if (rhs == "BYTE") {
         if (stoi(term->token_value) > 255) {
             errorByteTooLarge(yylineno, term->token_value);

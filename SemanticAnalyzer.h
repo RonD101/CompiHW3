@@ -150,7 +150,7 @@ public:
     string type;
     bool res_type;
     // NUM, NUM B, STRING, TRUE, FALSE
-    Exp(const shared_ptr<BaseType>& term, const shared_ptr<string>& rhs);
+    Exp(const shared_ptr<BaseType>& term, const string& rhs);
     // ID
     Exp(const shared_ptr<BaseType>& term);
     // Call
