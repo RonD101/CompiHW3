@@ -1,7 +1,13 @@
+void i(int x){
+  return;
+}
+
+void bo(byte y){
+  return;
+}
+
 void main() {
-    if (true) {
-        int x = 6;
-    }
-    else
-        int y = 4;
+    int x;
+    byte y;
+    i((int)y);
 }

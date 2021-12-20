@@ -289,7 +289,7 @@ Call::Call(BaseType* id, ExpList* param_list) {
             for (int i = 0; i < param_list->list.size(); i++) {
                 if (param_list->list[i]->type == row.types[i + 1])
                     continue;
-                if (param_list->list[i]->type == "BYTE" && row.types[i] == "INT")
+                if (param_list->list[i]->type == "BYTE" && row.types[i + 1] == "INT")
                     continue;
                 row.types.erase(row.types.begin());
                 errorPrototypeMismatch(yylineno, id->token_value, row.types);
@@ -426,10 +426,12 @@ Exp::Exp(Exp* first, const OP_TYPE& op, Exp* second) {
 }
 
 // Exp : LPAREN Type RPAREN Exp
-Exp::Exp(Type* type, Exp* exp) {
-    if (type->token_value == "BOOL" || type->token_value == "INT") {
-        if (exp->type == "BOOL" || exp->type == "INT")
+Exp::Exp(Type* new_type, Exp* exp) {
+    if (new_type->token_value == "BYTE" || new_type->token_value == "INT") {
+        if (exp->type == "BYTE" || exp->type == "INT") {
+            type = new_type->token_value;
             return;
+        }
         errorMismatch(yylineno);
         exit(0);
     }
