@@ -96,7 +96,7 @@ Exp : Exp RELATION Exp                                               { $$ = new 
 Exp : Exp EQUALITY Exp                                               { $$ = new Exp(dynamic_cast<Exp*>($1), OP_TYPE::EQUALITY, dynamic_cast<Exp*>($3)); };
 Exp : LPAREN Type RPAREN Exp                                         { $$ = new Exp(dynamic_cast<Type*>($2), dynamic_cast<Exp*>($4)); };
 M_ENTER_GLOBAL :                                                     { create_global_scope(); }
-M_WHILE_ENTER :                                                      { loop_entered(); }
+M_WHILE_ENTER :                                                      { loop_entered(); create_new_scope();}
 M_NEW_SCOPE :                                                        { create_new_scope(); }
 M_DES_SCOPE :                                                        { destroy_current_scope(); }
                                                       
