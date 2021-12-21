@@ -1,17 +1,40 @@
-void func(){return;}
-void
-func
-(
-)
-{
-return;
-}
-
 void main() {
-  byte x = 255b;
-  int
-  x
-  =
-  8;
+  const int i1 = 4;
+  int i2;
+  byte b1;
+  byte b2;
+  bool bo1;
+  bool bo2;
 
+  int ires;
+  byte bres;
+  bool bores;
+
+  ires = i1+i2;
+  ires = i1*i2;
+
+  bres = b1+b2;
+  bres=b1*b2;
+  
+  bores = bo1 and bo2;
+  bores = bo1 or bo2;
+  bores = not bo1;
+
+  bores = i1 == i2;
+  bores = i1 < i2;
+  bores = i1 != i2;
+  bores = b1 == b2;
+  bores = b1 < b2;
+  bores = b1 != b2;
+
+  ires = i1+b1;
+  ires = b1+i1;
+  ires = i1*b1;
+  ires = b1*i1;
+  ires = b1+b2;
+  ires = b1*b2;
+  bres = (byte)(i1+i1);
+  bres = (byte)(i1*i1);
+
+  bores = b1 < i1;
 }

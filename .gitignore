@@ -1,3 +1,7 @@
 tempCodeRunnerFile.cpp
 .vscode/settings.json
 .vscode/settings.json
+lex.yy.c
+.gitignore
+parser.tab.cpp
+out.txt

@@ -11,6 +11,7 @@ vector<SymbolTable> tables_stack;
 vector<int> offset_stack;
 string current_function_name;
 int num_of_loops;
+int cur_line;
 
 /* ************************************************ */
 void loop_entered() {
@@ -30,6 +31,11 @@ void create_new_scope() {
         offset_stack.push_back(0);
     else 
         offset_stack.push_back(offset_stack.back());
+}
+
+/* ************************************************ */
+void update_cur_line() {
+    cur_line = yylineno;
 }
 
 /* ************************************************ */
@@ -237,7 +243,7 @@ Statement::Statement(BaseType* id, Exp* exp) {
 /* Statement : TypeAnnotation Type ID ASSIGN Exp SC */
 Statement::Statement(Type* type, BaseType* id, Exp* exp, TypeAnnotation* const_anno) {
     // Symbol redefinition.
-    if (is_sym_dec(id->token_value, false)) {
+    if (id->token_value == current_function_name || is_sym_dec(id->token_value, false)) {
         errorDef(yylineno, id->token_value);
         exit(0);
     }
@@ -255,7 +261,7 @@ Statement::Statement(Type* type, BaseType* id, Exp* exp, TypeAnnotation* const_a
 /* Statement : TypeAnnotation Type ID SC */
 Statement::Statement(Type* type, BaseType* id, TypeAnnotation* const_anno) {
     // Symbol redefinition.
-    if (is_sym_dec(id->token_value, false)) {
+    if (id->token_value == current_function_name || is_sym_dec(id->token_value, false)) {
         errorDef(yylineno, id->token_value);
         exit(0);
     }
@@ -359,7 +365,6 @@ Exp::Exp(bool not_mark, Exp* exp) {
         errorMismatch(yylineno);
         exit(0);
     }
-    res_type = !res_type;
     type = "BOOL";
 }
 
@@ -371,12 +376,6 @@ Exp::Exp(BaseType* term, const string& rhs) : BaseType(term->token_value) {
             exit(0);
         }
     }
-    else if (rhs == "BOOL") {
-        if (term->token_value == "true")
-            res_type = true;
-        else
-            res_type = false;
-    }
     type = rhs;
 }
 
@@ -384,44 +383,39 @@ Exp::Exp(BaseType* term, const string& rhs) : BaseType(term->token_value) {
 Exp::Exp(Exp* exp) {
     token_value = exp->token_value;
     type = exp->type;
-    res_type = exp->res_type;
 }
 
 /* Exp : Exp RELOP/BINOP Exp */
 Exp::Exp(Exp* first, const OP_TYPE& op, Exp* second) {
-    // Int\Bool vs Int\Bool
-    if ((first->type == "INT" || first->type == "BYTE") && (second->type == "INT" || second->type == "BYTE")) {
-        if (op == OP_TYPE::EQUALITY || op == OP_TYPE::RELATION) 
-            type = "BOOL";
-        else if (op == OP_TYPE::BINADD || op == OP_TYPE::BINMUL) {
-            if (first->type == "INT" || second->type == "INT")
-                type = "INT";
-            else 
-                type = "BYTE";
-        }
-    // Bool vs Bool
-    } else if (first->type == "BOOL" && second->type == "BOOL") {
-        type = "BOOL";
-        if (op == OP_TYPE::AND) {
-            if (first->res_type && second->res_type)
-                res_type = true;
-            else
-                res_type = false;
-        }
-        else if (op == OP_TYPE::OR) {
-            if (first->res_type || second->res_type)
-                res_type = true;
-            else
-                res_type = false;
-        }
+
+    if (op == OP_TYPE::BINADD || op == OP_TYPE::BINMUL) {
+        // Byte BINOP Byte <- Byte
+        if (first->type == "BYTE" && second->type == "BYTE")
+            type = "BYTE";
+        // Byte\Int BINOP Byte\Int <- Int
+        else if ((first->type == "INT" || first->type == "BYTE") && (second->type == "INT" || second->type == "BYTE"))
+            type = "INT";
+        // BINOP on non number types.
         else {
             errorMismatch(yylineno);
             exit(0);
         }
     }
-    else {
-        errorMismatch(yylineno);
-        exit(0);
+    else if (op == OP_TYPE::EQUALITY || op == OP_TYPE::RELATION) {
+        // RELOP on non number types.
+        if ((first->type != "INT" && first->type != "BYTE") || (second->type != "INT" && second->type != "BYTE")) {
+            errorMismatch(yylineno);
+            exit(0);
+        }
+        type = "BOOL";
+    }
+    else if (op == OP_TYPE::AND || op == OP_TYPE::OR) {
+        // AND\OR on non bool types.
+        if (first->type != "BOOL" || second->type != "BOOL") {
+            errorMismatch(yylineno);
+            exit(0);
+        }
+        type = "BOOL";
     }
 }
 

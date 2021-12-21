@@ -46,5 +46,5 @@ continue                      yylval = new BaseType(yytext); return CONTINUE;
 {ws}                          {};
 (\r)|(\r\n)                   {};
 \/\/[^\r\n]*[ \r|\n|\r\n]?    {};
-.                             { output::errorLex(yylineno); };
+.                             { output::errorLex(yylineno); exit(0); };
 %%

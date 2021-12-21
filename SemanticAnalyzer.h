@@ -18,6 +18,7 @@ void create_new_scope();
 void create_global_scope();
 void destroy_current_scope();
 void check_for_main_correctness();
+void update_cur_line();
 
 enum class OP_TYPE {
     EQUALITY,
@@ -150,7 +151,6 @@ class Call;
 class Exp : public BaseType {
 public:
     string type;
-    bool res_type;
     // NUM, NUM B, STRING, TRUE, FALSE
     Exp(BaseType* term, const string& rhs);
     // ID
@@ -164,7 +164,7 @@ public:
     // LPAREN Exp RPAREN
     Exp(Exp* exp);
     // LPAREN Type RPAREN Exp
-    Exp(Type* type, Exp* exp);
+    Exp(Type* new_type, Exp* exp);
 };
 
 class ExpList : public BaseType {

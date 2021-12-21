@@ -1040,7 +1040,7 @@ YY_RULE_SETUP
 case 35:
 YY_RULE_SETUP
 #line 49 "scanner.lex"
-{ output::errorLex(yylineno); };
+{ output::errorLex(yylineno); exit(0); };
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
