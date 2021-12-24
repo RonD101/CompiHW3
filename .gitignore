@@ -5,3 +5,4 @@ lex.yy.c
 .gitignore
 parser.tab.cpp
 out.txt
+.vscode/settings.json

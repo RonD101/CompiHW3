@@ -12,6 +12,17 @@
         "utility": "cpp",
         "cstdlib": "cpp",
         "cmath": "cpp",
-        "random": "cpp"
+        "random": "cpp",
+        "*.tcc": "cpp",
+        "cstring": "cpp",
+        "string": "cpp",
+        "exception": "cpp",
+        "fstream": "cpp",
+        "istream": "cpp",
+        "ostream": "cpp",
+        "sstream": "cpp",
+        "stdexcept": "cpp",
+        "typeinfo": "cpp",
+        "string_view": "cpp"
     }
 }

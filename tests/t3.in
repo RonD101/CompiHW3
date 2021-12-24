@@ -1,5 +1,5 @@
 void main() {
-  const int i1 = 4;
+  int i1 = 4;
   int i2;
   byte b1;
   byte b2;
@@ -26,6 +26,8 @@ void main() {
   bores = b1 == b2;
   bores = b1 < b2;
   bores = b1 != b2;
+  bores = b1 < i1;
+  bores = i1 < b1;
 
   ires = i1+b1;
   ires = b1+i1;
@@ -35,6 +37,4 @@ void main() {
   ires = b1*b2;
   bres = (byte)(i1+i1);
   bres = (byte)(i1*i1);
-
-  bores = b1 < i1;
 }

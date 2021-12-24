@@ -11,7 +11,6 @@ vector<SymbolTable> tables_stack;
 vector<int> offset_stack;
 string current_function_name;
 int num_of_loops;
-int cur_line;
 
 /* ************************************************ */
 void loop_entered() {
@@ -31,11 +30,6 @@ void create_new_scope() {
         offset_stack.push_back(0);
     else 
         offset_stack.push_back(offset_stack.back());
-}
-
-/* ************************************************ */
-void update_cur_line() {
-    cur_line = yylineno;
 }
 
 /* ************************************************ */
@@ -387,7 +381,6 @@ Exp::Exp(Exp* exp) {
 
 /* Exp : Exp RELOP/BINOP Exp */
 Exp::Exp(Exp* first, const OP_TYPE& op, Exp* second) {
-
     if (op == OP_TYPE::BINADD || op == OP_TYPE::BINMUL) {
         // Byte BINOP Byte <- Byte
         if (first->type == "BYTE" && second->type == "BYTE")
@@ -426,8 +419,6 @@ Exp::Exp(Type* new_type, Exp* exp) {
             type = new_type->token_value;
             return;
         }
-        errorMismatch(yylineno);
-        exit(0);
     }
     errorMismatch(yylineno);
     exit(0);

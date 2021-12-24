@@ -18,7 +18,6 @@ void create_new_scope();
 void create_global_scope();
 void destroy_current_scope();
 void check_for_main_correctness();
-void update_cur_line();
 
 enum class OP_TYPE {
     EQUALITY,

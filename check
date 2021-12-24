@@ -2,3 +2,5 @@
 diff tests/t1.out tests/t1.exp
 ./hw3 < tests/t2.in > tests/t2.out
 diff tests/t2.out tests/t2.exp
+./hw3 < tests/t3.in > tests/t3.out
+diff tests/t3.out tests/t3.exp

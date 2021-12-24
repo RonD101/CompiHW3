@@ -1,0 +1,13 @@
+void main() {
+    return;
+}
+
+
+int f(const int i, int bss, const bool c, const byte bs, const int k) {
+    main();
+    return 522222;
+    bss = bss + (int)5;
+    bss = bs;
+    while(i > (int)bs)
+        return 2;
+}
