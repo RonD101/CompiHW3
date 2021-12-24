@@ -94,6 +94,13 @@ public:
     explicit RetType(BaseType* type) : BaseType(type->token_value) {}
 };
 
+class IDWrap : public BaseType {
+public:
+    string ID;
+    int lineNo;
+    explicit IDWrap(BaseType* ID, int lineNo) : BaseType(ID->token_value), ID(ID->token_value), lineNo(lineNo){}
+};
+
 class TypeAnnotation : public BaseType {
 public:
     bool is_const = false;
@@ -110,8 +117,8 @@ public:
     string param_type;
     bool is_param_const;
     // Type ID
-    FormalDecl(Type* t, BaseType* id, TypeAnnotation* const_anno) :
-        BaseType(id->token_value), param_type(t->token_value), is_param_const(const_anno->is_const) {}
+    FormalDecl(Type* t, IDWrap* id, TypeAnnotation* const_anno) :
+        BaseType(id->ID), param_type(t->token_value), is_param_const(const_anno->is_const) {}
 };
 
 class FormalsList : public BaseType {
@@ -142,7 +149,7 @@ public:
     vector<string> param_types;
     vector<bool> const_indicator;
     // RetType ID LPAREN Formals RPAREN LBRACE Statements RBRACE
-    FuncDecl(RetType* return_type, BaseType* func_name, Formals* params);
+    FuncDecl(RetType* return_type, IDWrap* func_name, Formals* params);
 };
 
 class Call; 
@@ -153,7 +160,7 @@ public:
     // NUM, NUM B, STRING, TRUE, FALSE
     Exp(BaseType* term, const string& rhs);
     // ID
-    Exp(BaseType* term);
+    Exp(IDWrap* term);
     // Call
     explicit Exp(Call* call);
     // NOT
@@ -184,9 +191,9 @@ class Call : public BaseType {
 public:
     string ret_type_of_called_func;
     // ID LPAREN ExpList RPAREN
-    Call(BaseType* id, ExpList* list);
+    Call(IDWrap* id, ExpList* list);
     // ID LPAREN RPAREN
-    explicit Call(BaseType* id);
+    explicit Call(IDWrap* id);
 };
 
 class Statement; 
@@ -204,11 +211,11 @@ public:
     // LBRACE Statements RBRACE
     explicit Statement(Statements* rhs_statements) {}
     // TypeAnnotation Type ID SC
-    Statement(Type* type, BaseType* id, TypeAnnotation* const_anno);
+    Statement(Type* type, IDWrap* id, TypeAnnotation* const_anno);
     // TypeAnnotation Type ID Assign Exp SC
-    Statement(Type* type, BaseType* id, Exp* exp, TypeAnnotation* const_anno);
+    Statement(Type* type, IDWrap* id, Exp* exp, TypeAnnotation* const_anno);
     // ID Assign Exp SC
-    Statement(BaseType* id, Exp* exp);
+    Statement(IDWrap* id, Exp* exp);
     // Call SC
     explicit Statement(Call* call) {}
     // Return SC (void)

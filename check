@@ -1,6 +1,12 @@
+echo check t1:
 ./hw3 < tests/t1.in > tests/t1.out
 diff tests/t1.out tests/t1.exp
+echo check t2:
 ./hw3 < tests/t2.in > tests/t2.out
 diff tests/t2.out tests/t2.exp
+echo check t3:
 ./hw3 < tests/t3.in > tests/t3.out
 diff tests/t3.out tests/t3.exp
+echo check t4:
+./hw3 < tests/t4.in > tests/t4.out
+diff tests/t4.out tests/t4.exp

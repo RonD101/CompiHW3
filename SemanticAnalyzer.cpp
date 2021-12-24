@@ -107,10 +107,10 @@ Funcs::Funcs() {
 }
 
 /* FuncDecl : RetType ID LPAREN Formals RPAREN LBRACE Statements RBRACE */
-FuncDecl::FuncDecl(RetType* return_type, BaseType* func_name, Formals* params) {
+FuncDecl::FuncDecl(RetType* return_type, IDWrap* func_name, Formals* params) {
     // Redecleration of function.
-    if (is_sym_dec(func_name->token_value, true)) {
-        errorDef(yylineno, func_name->token_value);
+    if (is_sym_dec(func_name->ID, true)) {
+        errorDef(func_name->lineNo, func_name->ID);
         exit(0);
     }
     for (const auto& cur_param : params->formals) {
@@ -130,7 +130,7 @@ FuncDecl::FuncDecl(RetType* return_type, BaseType* func_name, Formals* params) {
         param_types.push_back(param.param_type);
         const_indicator.push_back(param.is_param_const);
     }
-    SymbolEntry new_func(func_name->token_value, param_types, 0, true, false, const_indicator);
+    SymbolEntry new_func(func_name->ID, param_types, 0, true, false, const_indicator);
     tables_stack.front().rows.push_back(new_func);
     for (const auto& param : params->formals) {
         int new_offset = --offset_stack.back();
@@ -208,16 +208,16 @@ Statement::Statement(Exp* exp) {
 }
 
 /* Statement : ID ASSIGN Exp SC */
-Statement::Statement(BaseType* id, Exp* exp) {
+Statement::Statement(IDWrap* id, Exp* exp) {
     // Assignment to undeclared var.
-    if (!is_sym_dec(id->token_value, false)) {
-        errorUndef(yylineno, id->token_value);
+    if (!is_sym_dec(id->ID, false)) {
+        errorUndef(id->lineNo, id->ID);
         exit(0);
     }
 
     for (auto cur_tab = tables_stack.rbegin(); cur_tab != tables_stack.rend(); ++cur_tab) {
         for (const auto& row : cur_tab->rows) {
-            if (!row.is_func && row.name == id->token_value) {
+            if (!row.is_func && row.name == id->ID) {
                 // We found the desired variable
                 if (row.is_const) {
                     errorConstMismatch(yylineno);
@@ -235,16 +235,16 @@ Statement::Statement(BaseType* id, Exp* exp) {
 }
 
 /* Statement : TypeAnnotation Type ID ASSIGN Exp SC */
-Statement::Statement(Type* type, BaseType* id, Exp* exp, TypeAnnotation* const_anno) {
+Statement::Statement(Type* type, IDWrap* id, Exp* exp, TypeAnnotation* const_anno) {
     // Symbol redefinition.
-    if (id->token_value == current_function_name || is_sym_dec(id->token_value, false)) {
-        errorDef(yylineno, id->token_value);
+    if (id->ID == current_function_name || is_sym_dec(id->ID, false)) {
+        errorDef(id->lineNo, id->ID);
         exit(0);
     }
     if (type->token_value == exp->type || (type->token_value == "INT" && exp->type == "BYTE")) {
         int new_offset = offset_stack.back()++;
         vector<string> varType = { type->token_value };
-        SymbolEntry new_sym(id->token_value, varType, new_offset, false, const_anno->is_const);
+        SymbolEntry new_sym(id->ID, varType, new_offset, false, const_anno->is_const);
         tables_stack.back().rows.push_back(new_sym);
     } else {
         errorMismatch(yylineno);
@@ -253,10 +253,10 @@ Statement::Statement(Type* type, BaseType* id, Exp* exp, TypeAnnotation* const_a
 }
 
 /* Statement : TypeAnnotation Type ID SC */
-Statement::Statement(Type* type, BaseType* id, TypeAnnotation* const_anno) {
+Statement::Statement(Type* type, IDWrap* id, TypeAnnotation* const_anno) {
     // Symbol redefinition.
-    if (id->token_value == current_function_name || is_sym_dec(id->token_value, false)) {
-        errorDef(yylineno, id->token_value);
+    if (id->ID == current_function_name || is_sym_dec(id->ID, false)) {
+        errorDef(id->lineNo, id->ID);
         exit(0);
     }
     if (const_anno->is_const) {
@@ -265,25 +265,25 @@ Statement::Statement(Type* type, BaseType* id, TypeAnnotation* const_anno) {
     }
     int new_offset = offset_stack.back()++;
     vector<string> varType = { type->token_value };
-    SymbolEntry new_sym(id->token_value, varType, new_offset, false, false);
+    SymbolEntry new_sym(id->ID, varType, new_offset, false, false);
     tables_stack.back().rows.push_back(new_sym);
 }
 
 /* Call : ID LPAREN ExpList RPAREN */
-Call::Call(BaseType* id, ExpList* param_list) {
+Call::Call(IDWrap* id, ExpList* param_list) {
     for (auto& table : tables_stack) {
         for (auto& row : table.rows) {
-            if (row.name != id->token_value)
+            if (row.name != id->ID)
                 continue;
             // Found variable with a func name.
             if (!row.is_func) {
-                errorUndefFunc(yylineno, id->token_value);
+                errorUndefFunc(id->lineNo, id->ID);
                 exit(0);
             }
             // Incorrect number of parameters.
             if (row.types.size() != param_list->list.size() + 1) {
                 row.types.erase(row.types.begin()); // Remove return type.
-                errorPrototypeMismatch(yylineno, id->token_value, row.types);
+                errorPrototypeMismatch(id->lineNo, id->ID, row.types);
                 exit(0);
             }
             for (int i = 0; i < param_list->list.size(); i++) {
@@ -292,39 +292,39 @@ Call::Call(BaseType* id, ExpList* param_list) {
                 if (param_list->list[i]->type == "BYTE" && row.types[i + 1] == "INT")
                     continue;
                 row.types.erase(row.types.begin());
-                errorPrototypeMismatch(yylineno, id->token_value, row.types);
+                errorPrototypeMismatch(id->lineNo, id->ID, row.types);
                 exit(0);
             }
             ret_type_of_called_func = row.types[0];
             return; // Everything is fine.
         }
     }
-    errorUndefFunc(yylineno, id->token_value);
+    errorUndefFunc(id->lineNo, id->ID);
     exit(0);
 }
 
 /* Call : ID LPAREN RPAREN */
-Call::Call(BaseType* id) {
+Call::Call(IDWrap* id) {
     for (auto& table : tables_stack) {
         for (auto& row : table.rows) {
-            if (row.name != id->token_value)
+            if (row.name != id->ID)
                 continue;
             // Found variable with a func name.
             if (!row.is_func) {
-                errorUndefFunc(yylineno, id->token_value);
+                errorUndefFunc(id->lineNo, id->ID);
                 exit(0);
             }
             // Incorrect number of parameters.
             if (row.types.size() != 1) {
                 row.types.erase(row.types.begin()); // Remove return type.
-                errorPrototypeMismatch(yylineno, id->token_value, row.types);
+                errorPrototypeMismatch(id->lineNo, id->ID, row.types);
                 exit(0);
             }
             ret_type_of_called_func = row.types[0];
             return; // Everything is fine.
         }
     }
-    errorUndefFunc(yylineno, id->token_value);
+    errorUndefFunc(id->lineNo, id->ID);
     exit(0);
 }
 
@@ -335,16 +335,16 @@ Exp::Exp(Call* call) {
 }
 
 /* Exp : ID */
-Exp::Exp(BaseType* term) {
-    if (!is_sym_dec(term->token_value, false)) {
-        errorUndef(yylineno, term->token_value);
+Exp::Exp(IDWrap* term) {
+    if (!is_sym_dec(term->ID, false)) {
+        errorUndef(term->lineNo, term->ID);
         exit(0);
     }
 
     for (const auto& table : tables_stack) {
         for (const auto& row : table.rows) {
-            if (row.name == term->token_value) {
-                token_value = term->token_value;
+            if (row.name == term->ID) {
+                token_value = term->ID;
                 type = row.types[0];
                 return;
             }

@@ -15,7 +15,7 @@ void main() {
 
   bres = b1+b2;
   bres=b1*b2;
-  
+
   bores = bo1 and bo2;
   bores = bo1 or bo2;
   bores = not bo1;

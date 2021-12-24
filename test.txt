@@ -1,0 +1,17 @@
+void func(){return;}
+void
+func
+(
+)
+{
+return;
+}
+
+void main() {
+  byte x = 255b;
+  int
+  x
+  =
+  8;
+
+}
