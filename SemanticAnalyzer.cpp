@@ -237,7 +237,7 @@ Statement::Statement(IDWrap* id, Exp* exp) {
 /* Statement : TypeAnnotation Type ID ASSIGN Exp SC */
 Statement::Statement(Type* type, IDWrap* id, Exp* exp, TypeAnnotation* const_anno) {
     // Symbol redefinition.
-    if (id->ID == current_function_name || is_sym_dec(id->ID, false)) {
+    if (is_sym_dec(id->ID, true) || is_sym_dec(id->ID, false)) {
         errorDef(id->lineNo, id->ID);
         exit(0);
     }
@@ -255,7 +255,7 @@ Statement::Statement(Type* type, IDWrap* id, Exp* exp, TypeAnnotation* const_ann
 /* Statement : TypeAnnotation Type ID SC */
 Statement::Statement(Type* type, IDWrap* id, TypeAnnotation* const_anno) {
     // Symbol redefinition.
-    if (id->ID == current_function_name || is_sym_dec(id->ID, false)) {
+    if (is_sym_dec(id->ID, true) || is_sym_dec(id->ID, false)) {
         errorDef(id->lineNo, id->ID);
         exit(0);
     }

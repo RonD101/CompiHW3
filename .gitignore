@@ -6,3 +6,4 @@ lex.yy.c
 parser.tab.cpp
 out.txt
 .vscode/settings.json
+parser.tab.cpp
