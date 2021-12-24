@@ -75,11 +75,11 @@ void check_for_main_correctness() {
             }
         }
     }
-    destroy_current_scope();
     if (num_of_main != 1) {
         errorMainMissing();
         exit(0);
     }
+    destroy_current_scope();
 }
 
 /* ************************************************ */
