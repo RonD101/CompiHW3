@@ -79,7 +79,7 @@ void check_for_main_correctness() {
         errorMainMissing();
         exit(0);
     }
-    destroy_current_scope();
+    destroy_current_scope(); //
 }
 
 /* ************************************************ */

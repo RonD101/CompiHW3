@@ -1,9 +1,27 @@
+1
+1
+2
+2
+3
 ---end scope---
 x INT -1
+6
+6
+7
+7
+7
 ---end scope---
 x INT -1
 y INT 0
+11
+12
+13
+14
+15
+15
+15
 ---end scope---
 x INT 1
 ---end scope---
+18
 line 18: syntax error

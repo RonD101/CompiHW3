@@ -1348,7 +1348,7 @@ yyreduce:
 
   case 24: /* Statement: IF LPAREN Exp RPAREN M_NEW_SCOPE Statement ELSE M_DES_SCOPE M_NEW_SCOPE Statement  */
 #line 68 "parser.ypp"
-{ 
+{
     yyval = new Statement("", dynamic_cast<Exp*>(yyvsp[-7])); destroy_current_scope(); 
 }
 #line 1355 "parser.tab.cpp"

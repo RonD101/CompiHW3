@@ -65,7 +65,7 @@ Statement : RETURN SC                                                { $$ = new 
 Statement : RETURN Exp SC                                            { $$ = new Statement(dynamic_cast<Exp*>($2)); };
 Statement : IF LPAREN Exp RPAREN M_NEW_SCOPE Statement               { $$ = new Statement("", dynamic_cast<Exp*>($3)); destroy_current_scope(); };
 Statement : IF LPAREN Exp RPAREN M_NEW_SCOPE Statement ELSE M_DES_SCOPE M_NEW_SCOPE Statement
-{ 
+{
     $$ = new Statement("", dynamic_cast<Exp*>($3)); destroy_current_scope(); 
 };
 Statement : WHILE LPAREN Exp RPAREN M_WHILE_ENTER Statement          { $$ = new Statement("", dynamic_cast<Exp*>($3)); destroy_current_scope(); loop_exited(); };
