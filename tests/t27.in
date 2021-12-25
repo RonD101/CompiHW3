@@ -1,8 +1,9 @@
-bool foo(){
-return true;
-}
-void main(){
 
-if(foo()) printi(3);
-while(foo()) print("hi");
+
+void main(){
+    bool x;
+    if(x)    
+        int y;
+    else 
+       int z;
 }

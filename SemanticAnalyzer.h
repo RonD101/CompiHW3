@@ -1,6 +1,3 @@
-//
-// Created by Renen on 12/12/2021.
-//
 #ifndef COMPIHW3_SEMANTICANALYZER_H
 #define COMPIHW3_SEMANTICANALYZER_H
 
@@ -14,6 +11,7 @@ using std::string;
 
 void loop_entered();
 void loop_exited();
+void enter_if();
 void create_new_scope();
 void create_global_scope();
 void destroy_current_scope();
@@ -160,7 +158,7 @@ public:
     // NUM, NUM B, STRING, TRUE, FALSE
     Exp(BaseType* term, const string& rhs);
     // ID
-    Exp(IDWrap* term);
+    Exp(BaseType* term);
     // Call
     explicit Exp(Call* call);
     // NOT
@@ -191,9 +189,9 @@ class Call : public BaseType {
 public:
     string ret_type_of_called_func;
     // ID LPAREN ExpList RPAREN
-    Call(IDWrap* id, ExpList* list);
+    Call(BaseType* id, ExpList* list);
     // ID LPAREN RPAREN
-    explicit Call(IDWrap* id);
+    explicit Call(BaseType* id);
 };
 
 class Statement; 
@@ -211,11 +209,11 @@ public:
     // LBRACE Statements RBRACE
     explicit Statement(Statements* rhs_statements) {}
     // TypeAnnotation Type ID SC
-    Statement(Type* type, IDWrap* id, TypeAnnotation* const_anno);
+    Statement(Type* type, BaseType* id, TypeAnnotation* const_anno);
     // TypeAnnotation Type ID Assign Exp SC
-    Statement(Type* type, IDWrap* id, Exp* exp, TypeAnnotation* const_anno);
+    Statement(Type* type, BaseType* id, Exp* exp, TypeAnnotation* const_anno);
     // ID Assign Exp SC
-    Statement(IDWrap* id, Exp* exp);
+    Statement(BaseType* id, Exp* exp);
     // Call SC
     explicit Statement(Call* call) {}
     // Return SC (void)

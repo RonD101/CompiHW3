@@ -1,7 +1,3 @@
-//
-// Created by user on 12/12/2021.
-//
-
 #include "SemanticAnalyzer.h"
 #include <cstring>
 
@@ -11,15 +7,23 @@ vector<SymbolTable> tables_stack;
 vector<int> offset_stack;
 string current_function_name;
 int num_of_loops;
+int cur_if_line;
+int cur_while_line;
 
 /* ************************************************ */
 void loop_entered() {
+    cur_while_line = yylineno;
     num_of_loops++;
 }
 
 /* ************************************************ */
 void loop_exited() {
     num_of_loops--;
+}
+
+/* ************************************************ */
+void enter_if() {
+    cur_if_line = yylineno;
 }
 
 /* ************************************************ */
@@ -119,7 +123,7 @@ FuncDecl::FuncDecl(RetType* return_type, IDWrap* func_name, Formals* params) {
                 continue;
             // Two parameters with the same name.
             if (cur_param.token_value == next_param.token_value) {
-                errorDef(yylineno, cur_param.token_value);
+                errorDef(func_name->lineNo, cur_param.token_value);
                 exit(0);
             }
         }
@@ -161,7 +165,10 @@ Statement::Statement(const Break_Cont& type) {
 Statement::Statement(const string& type, Exp* exp) {
     // Expression inside if/while statement must be boolean.
     if (exp->type != "BOOL") {
-        errorMismatch(yylineno);
+        if (type == "IF")
+            errorMismatch(cur_if_line);
+        else
+            errorMismatch(cur_while_line);
         exit(0);
     }
 }
@@ -208,16 +215,16 @@ Statement::Statement(Exp* exp) {
 }
 
 /* Statement : ID ASSIGN Exp SC */
-Statement::Statement(IDWrap* id, Exp* exp) {
+Statement::Statement(BaseType* id, Exp* exp) {
     // Assignment to undeclared var.
-    if (!is_sym_dec(id->ID, false)) {
-        errorUndef(id->lineNo, id->ID);
+    if (!is_sym_dec(id->token_value, false)) {
+        errorUndef(yylineno, id->token_value);
         exit(0);
     }
 
     for (auto cur_tab = tables_stack.rbegin(); cur_tab != tables_stack.rend(); ++cur_tab) {
         for (const auto& row : cur_tab->rows) {
-            if (!row.is_func && row.name == id->ID) {
+            if (!row.is_func && row.name == id->token_value) {
                 // We found the desired variable
                 if (row.is_const) {
                     errorConstMismatch(yylineno);
@@ -235,16 +242,16 @@ Statement::Statement(IDWrap* id, Exp* exp) {
 }
 
 /* Statement : TypeAnnotation Type ID ASSIGN Exp SC */
-Statement::Statement(Type* type, IDWrap* id, Exp* exp, TypeAnnotation* const_anno) {
+Statement::Statement(Type* type, BaseType* id, Exp* exp, TypeAnnotation* const_anno) {
     // Symbol redefinition.
-    if (is_sym_dec(id->ID, true) || is_sym_dec(id->ID, false)) {
-        errorDef(id->lineNo, id->ID);
+    if (is_sym_dec(id->token_value, true) || is_sym_dec(id->token_value, false)) {
+        errorDef(yylineno, id->token_value);
         exit(0);
     }
     if (type->token_value == exp->type || (type->token_value == "INT" && exp->type == "BYTE")) {
         int new_offset = offset_stack.back()++;
         vector<string> varType = { type->token_value };
-        SymbolEntry new_sym(id->ID, varType, new_offset, false, const_anno->is_const);
+        SymbolEntry new_sym(id->token_value, varType, new_offset, false, const_anno->is_const);
         tables_stack.back().rows.push_back(new_sym);
     } else {
         errorMismatch(yylineno);
@@ -253,10 +260,10 @@ Statement::Statement(Type* type, IDWrap* id, Exp* exp, TypeAnnotation* const_ann
 }
 
 /* Statement : TypeAnnotation Type ID SC */
-Statement::Statement(Type* type, IDWrap* id, TypeAnnotation* const_anno) {
+Statement::Statement(Type* type, BaseType* id, TypeAnnotation* const_anno) {
     // Symbol redefinition.
-    if (is_sym_dec(id->ID, true) || is_sym_dec(id->ID, false)) {
-        errorDef(id->lineNo, id->ID);
+    if (is_sym_dec(id->token_value, true) || is_sym_dec(id->token_value, false)) {
+        errorDef(yylineno, id->token_value);
         exit(0);
     }
     if (const_anno->is_const) {
@@ -265,25 +272,25 @@ Statement::Statement(Type* type, IDWrap* id, TypeAnnotation* const_anno) {
     }
     int new_offset = offset_stack.back()++;
     vector<string> varType = { type->token_value };
-    SymbolEntry new_sym(id->ID, varType, new_offset, false, false);
+    SymbolEntry new_sym(id->token_value, varType, new_offset, false, false);
     tables_stack.back().rows.push_back(new_sym);
 }
 
 /* Call : ID LPAREN ExpList RPAREN */
-Call::Call(IDWrap* id, ExpList* param_list) {
+Call::Call(BaseType* id, ExpList* param_list) {
     for (auto& table : tables_stack) {
         for (auto& row : table.rows) {
-            if (row.name != id->ID)
+            if (row.name != id->token_value)
                 continue;
             // Found variable with a func name.
             if (!row.is_func) {
-                errorUndefFunc(id->lineNo, id->ID);
+                errorUndefFunc(yylineno, id->token_value);
                 exit(0);
             }
             // Incorrect number of parameters.
             if (row.types.size() != param_list->list.size() + 1) {
                 row.types.erase(row.types.begin()); // Remove return type.
-                errorPrototypeMismatch(id->lineNo, id->ID, row.types);
+                errorPrototypeMismatch(yylineno, id->token_value, row.types);
                 exit(0);
             }
             for (int i = 0; i < param_list->list.size(); i++) {
@@ -292,39 +299,39 @@ Call::Call(IDWrap* id, ExpList* param_list) {
                 if (param_list->list[i]->type == "BYTE" && row.types[i + 1] == "INT")
                     continue;
                 row.types.erase(row.types.begin());
-                errorPrototypeMismatch(id->lineNo, id->ID, row.types);
+                errorPrototypeMismatch(yylineno, id->token_value, row.types);
                 exit(0);
             }
             ret_type_of_called_func = row.types[0];
             return; // Everything is fine.
         }
     }
-    errorUndefFunc(id->lineNo, id->ID);
+    errorUndefFunc(yylineno, id->token_value);
     exit(0);
 }
 
 /* Call : ID LPAREN RPAREN */
-Call::Call(IDWrap* id) {
+Call::Call(BaseType* id) {
     for (auto& table : tables_stack) {
         for (auto& row : table.rows) {
-            if (row.name != id->ID)
+            if (row.name != id->token_value)
                 continue;
             // Found variable with a func name.
             if (!row.is_func) {
-                errorUndefFunc(id->lineNo, id->ID);
+                errorUndefFunc(yylineno, id->token_value);
                 exit(0);
             }
             // Incorrect number of parameters.
             if (row.types.size() != 1) {
                 row.types.erase(row.types.begin()); // Remove return type.
-                errorPrototypeMismatch(id->lineNo, id->ID, row.types);
+                errorPrototypeMismatch(yylineno, id->token_value, row.types);
                 exit(0);
             }
             ret_type_of_called_func = row.types[0];
             return; // Everything is fine.
         }
     }
-    errorUndefFunc(id->lineNo, id->ID);
+    errorUndefFunc(yylineno, id->token_value);
     exit(0);
 }
 
@@ -335,16 +342,16 @@ Exp::Exp(Call* call) {
 }
 
 /* Exp : ID */
-Exp::Exp(IDWrap* term) {
-    if (!is_sym_dec(term->ID, false)) {
-        errorUndef(term->lineNo, term->ID);
+Exp::Exp(BaseType* term) {
+    if (!is_sym_dec(term->token_value, false)) {
+        errorUndef(yylineno, term->token_value);
         exit(0);
     }
 
     for (const auto& table : tables_stack) {
         for (const auto& row : table.rows) {
-            if (row.name == term->ID) {
-                token_value = term->ID;
+            if (row.name == term->token_value) {
+                token_value = term->token_value;
                 type = row.types[0];
                 return;
             }
