@@ -47,7 +47,7 @@ FuncDecl : RetType IDWrap M_NEW_SCOPE LPAREN Formals RPAREN LBRACE
 { 
     $$ =  new FuncDecl(dynamic_cast<RetType*>($1), dynamic_cast<IDWrap*>($2), dynamic_cast<Formals*>($5));
 } Statements RBRACE { destroy_current_scope(); };
-RetType : Type                                                       { $$ = new RetType(dynamic_cast<Type*>($1)); };
+RetType : M_CHECK_TYPE Type                                                       { $$ = new RetType(dynamic_cast<Type*>($2)); };
 RetType : VOID                                                       { $$ = new RetType($1); };
 Formals :                                                            { $$ = new Formals(); };
 Formals : FormalsList                                                { $$ = new Formals(dynamic_cast<FormalsList*>($1)); };
@@ -103,6 +103,9 @@ M_WHILE_ENTER :                                                      { create_ne
 M_NEW_SCOPE :                                                        { create_new_scope(); }
 M_DES_SCOPE :                                                        { destroy_current_scope(); }
 M_ENTER_IF  :                                                        { create_new_scope(); enter_if(); }
+M_CHECK_TYPE : {
+
+}
 %%
 
 int main() {

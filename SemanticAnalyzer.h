@@ -71,7 +71,9 @@ public:
 
 class Type : public BaseType {
 public:
-    explicit Type(BaseType* type) : BaseType(type->token_value) {}
+    explicit Type(BaseType* type) : BaseType(type->token_value) {
+
+    }
 };
 
 class Program : public BaseType {
@@ -89,7 +91,9 @@ public:
 class RetType : public BaseType {
 public:
     // TYPE
-    explicit RetType(BaseType* type) : BaseType(type->token_value) {}
+    explicit RetType(BaseType* type) : BaseType(type->token_value) {
+
+    }
 };
 
 class IDWrap : public BaseType {
