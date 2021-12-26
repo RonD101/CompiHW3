@@ -63,8 +63,8 @@ Statement : ID ASSIGN Exp SC                                         { $$ = new 
 Statement : Call SC                                                  { $$ = new Statement(dynamic_cast<Call*>($1)); };
 Statement : RETURN SC                                                { $$ = new Statement(); };
 Statement : RETURN Exp SC                                            { $$ = new Statement(dynamic_cast<Exp*>($2)); };
-Statement : IF LPAREN Exp RPAREN M_ENTER_IF Statement                { $$ = new Statement("IF", dynamic_cast<Exp*>($3)); destroy_current_scope(); };
-Statement : IF LPAREN Exp RPAREN M_ENTER_IF Statement ELSE M_DES_SCOPE M_NEW_SCOPE Statement
+Statement : IF LPAREN ExpWrap RPAREN M_ENTER_IF Statement            { $$ = new Statement("IF", dynamic_cast<Exp*>($3)); destroy_current_scope(); };
+Statement : IF LPAREN ExpWrap RPAREN M_ENTER_IF Statement ELSE M_DES_SCOPE M_NEW_SCOPE Statement
 {
     $$ = new Statement("IF", dynamic_cast<Exp*>($3)); destroy_current_scope(); 
 };
@@ -97,6 +97,7 @@ Exp : Exp RELATION Exp                                               { $$ = new 
 Exp : Exp EQUALITY Exp                                               { $$ = new Exp(dynamic_cast<Exp*>($1), OP_TYPE::EQUALITY, dynamic_cast<Exp*>($3)); };
 Exp : LPAREN Type RPAREN Exp                                         { $$ = new Exp(dynamic_cast<Type*>($2), dynamic_cast<Exp*>($4)); };
 IDWrap : ID                                                          { $$ = new IDWrap($1, yylineno); };
+ExpWrap: Exp                                                         { $$ = $1; checkBoolExp(dynamic_cast<Exp*>($1)); };
 M_ENTER_GLOBAL :                                                     { create_global_scope(); }
 M_WHILE_ENTER :                                                      { create_new_scope(); loop_entered(); }
 M_NEW_SCOPE :                                                        { create_new_scope(); }

@@ -430,3 +430,10 @@ Exp::Exp(Type* new_type, Exp* exp) {
     errorMismatch(yylineno);
     exit(0);
 }
+
+void checkBoolExp(Exp* exp){
+    if(exp->type != "BOOL") {
+        errorMismatch(yylineno);
+        exit(0);
+    }
+}

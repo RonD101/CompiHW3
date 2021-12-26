@@ -226,4 +226,6 @@ public:
     explicit Statement(const Break_Cont& type);
 };
 
+void checkBoolExp(Exp* exp);
+
 #endif //COMPIHW3_SEMANTICANALYZER_H
